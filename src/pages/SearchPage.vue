@@ -122,7 +122,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import ProductCard from '../components/ProductCard.vue'
-import type { Product } from '../components/ProductCard.vue'
+import type { Product } from '../types/product'
 
 const router = useRouter()
 const inputRef = ref<{ focus: () => void } | null>(null)
