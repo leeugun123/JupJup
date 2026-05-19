@@ -35,6 +35,11 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 
 **Mock data:** `src/data/mockProducts.ts`에서 중앙 관리. `HomePage`, `SearchPage`, `ProductDetailPage`가 공통으로 import해서 사용. API 레이어 없음.
 
+**State management:** Pinia 사용. `src/boot/pinia.ts`에서 초기화 후 `quasar.config.ts` boot 배열에 등록. 새 스토어 추가 시 `src/stores/` 디렉토리에 생성하면 되고, boot 파일 재등록은 불필요.
+
+**Stores:**
+- `src/stores/favorites.ts` — 찜한 상품 ID 목록 관리. `toggle(id)`, `isFavorite(id)`, `favoriteProducts` (computed) 제공.
+
 **Styling:** Global SCSS variables in `src/css/quasar.variables.scss`. Brand colors: primary `#FF4757` (red), secondary `#FFA502` (orange), accent `#5352ED` (purple). Background color for pages: `#F7F8FA`. Scoped SCSS inside each component uses `lang="scss"`.
 
 **Quasar auto-import:** Quasar components (`q-card`, `q-btn`, etc.) are auto-imported — no manual import needed in templates.
@@ -44,6 +49,7 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 **ProductCard.vue**
 - 할인 배지는 `position: absolute`로 이미지 위에 오버레이됨 (`.img-wrap`이 `position: relative`)
 - 유통기한 D-2 이하이면 우하단에 마감 임박 배지 자동 표시 (`daysLeft` computed)
+- 우상단 하트 버튼 — `useFavoritesStore()`로 찜 토글, `@click.stop`으로 카드 클릭 이벤트와 분리
 - `@click` emit으로 클릭 이벤트를 부모에 전달
 
 **MainLayout.vue**
