@@ -6,6 +6,14 @@
       <div v-if="daysLeft <= 2" class="badge-expiry" :class="{ today: daysLeft === 0 }">
         {{ daysLeft === 0 ? '오늘 마감' : `D-${daysLeft}` }}
       </div>
+      <q-btn
+        flat round dense
+        :icon="isFav ? 'favorite' : 'favorite_border'"
+        :color="isFav ? 'negative' : 'white'"
+        class="fav-btn"
+        size="sm"
+        @click.stop="toggleFav"
+      />
     </div>
     <div class="card-body">
       <div class="store-name">{{ product.storeName }}</div>
@@ -21,9 +29,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Product } from '../types/product'
+import { useFavoritesStore } from '../stores/favorites'
 
 const props = defineProps<{ product: Product }>()
 const emit = defineEmits(['click'])
+
+const favStore = useFavoritesStore()
+const isFav = computed(() => favStore.isFavorite(props.product.id))
+function toggleFav() { favStore.toggle(props.product.id) }
 
 const daysLeft = computed(() => {
   const today = new Date()
@@ -68,6 +81,14 @@ const daysLeft = computed(() => {
   padding: 3px 8px;
   border-radius: 8px;
   letter-spacing: -0.3px;
+}
+
+.fav-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
 }
 
 .badge-expiry {

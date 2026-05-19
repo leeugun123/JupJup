@@ -2,12 +2,12 @@
   <q-page class="fav-page">
     <div class="fav-header q-px-md q-pt-md q-pb-sm">
       <span class="fav-title">찜한 상품</span>
-      <span class="fav-count text-grey-5">{{ favorites.length }}개</span>
+      <span class="fav-count text-grey-5">{{ favStore.ids.length }}개</span>
     </div>
 
-    <div v-if="favorites.length" class="q-px-md q-pb-xl">
+    <div v-if="favStore.favoriteProducts.length" class="q-px-md q-pb-xl">
       <div class="row q-col-gutter-sm">
-        <div v-for="product in favorites" :key="product.id" class="col-6">
+        <div v-for="product in favStore.favoriteProducts" :key="product.id" class="col-6">
           <ProductCard :product="product" @click="goToDetail(product.id)" />
         </div>
       </div>
@@ -26,41 +26,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ProductCard from '../components/ProductCard.vue'
-import type { Product } from '../types/product'
+import { useFavoritesStore } from '../stores/favorites'
 
 const router = useRouter()
-
-const favorites = ref<Product[]>([
-  {
-    id: '1',
-    name: '딸기 우유',
-    originalPrice: 2500,
-    discountPrice: 1500,
-    discountPercent: 40,
-    expiryDate: '2026-05-21',
-    storeId: 'store1',
-    storeName: 'CU 강남점',
-    location: '서울 강남구',
-    image: 'https://picsum.photos/seed/milk1/400/300',
-    category: 'dairy'
-  },
-  {
-    id: '6',
-    name: '그릭 요거트',
-    originalPrice: 3500,
-    discountPrice: 2100,
-    discountPercent: 40,
-    expiryDate: '2026-05-19',
-    storeId: 'store1',
-    storeName: 'CU 강남점',
-    location: '서울 강남구',
-    image: 'https://picsum.photos/seed/yogurt6/400/300',
-    category: 'dairy'
-  },
-])
+const favStore = useFavoritesStore()
 
 function goToDetail(id: string) {
   void router.push(`/product/${id}`)

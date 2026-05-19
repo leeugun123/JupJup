@@ -86,7 +86,13 @@
 
       <!-- Bottom Action Bar -->
       <div class="action-bar">
-        <q-btn flat round icon="favorite_border" color="grey-5" class="fav-btn" />
+        <q-btn
+          flat round
+          :icon="isFav ? 'favorite' : 'favorite_border'"
+          :color="isFav ? 'negative' : 'grey-5'"
+          class="fav-btn"
+          @click="favStore.toggle(product!.id)"
+        />
         <q-btn unelevated label="구매하기" color="primary" class="buy-btn" rounded />
       </div>
     </template>
@@ -97,8 +103,11 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { mockProducts } from '../data/mockProducts'
+import { useFavoritesStore } from '../stores/favorites'
 
 const route = useRoute()
+const favStore = useFavoritesStore()
+const isFav = computed(() => product.value ? favStore.isFavorite(product.value.id) : false)
 
 const product = computed(() =>
   mockProducts.find((p) => p.id === route.params.id)

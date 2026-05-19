@@ -19,7 +19,7 @@
       <!-- Stats Card -->
       <div class="stats-card q-mx-md">
         <div class="stat-item">
-          <div class="stat-value text-primary">3</div>
+          <div class="stat-value text-primary">{{ favStore.ids.length }}</div>
           <div class="stat-label">찜한 상품</div>
         </div>
         <div class="stat-divider" />
@@ -173,7 +173,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useFavoritesStore } from '../stores/favorites'
 
+const favStore = useFavoritesStore()
 const notifOn = ref(true)
 const showLoginDialog = ref(false)
 </script>
