@@ -1,5 +1,6 @@
 <template>
   <q-page class="q-pa-md">
+    <q-btn flat round dense icon="arrow_back" @click="$router.back()" class="q-mb-md" />
     <div class="row">
       <div class="col-xs-12 col-sm-6">
         <q-img src="https://via.placeholder.com/300" class="rounded-borders" />
