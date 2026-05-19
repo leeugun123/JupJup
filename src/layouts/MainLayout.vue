@@ -15,7 +15,9 @@
       <q-tabs
         v-model="tab"
         active-color="primary"
+        inactive-color="grey-5"
         indicator-color="transparent"
+        align="justify"
         class="footer-tabs"
       >
         <q-tab name="home" icon="home" label="홈" to="/" class="footer-tab" />
