@@ -1,97 +1,122 @@
 <template>
   <q-page class="detail-page">
-    <!-- Hero Image -->
-    <div class="hero-wrap">
-      <q-img
-        src="https://picsum.photos/seed/milk1/800/600"
-        height="300px"
-        fit="cover"
-        class="hero-img"
-      />
-      <div class="hero-overlay" />
-      <q-btn
-        flat round dense
-        icon="arrow_back"
-        class="back-btn"
-        @click="$router.back()"
-      />
-      <div class="hero-badge">-40%</div>
+    <!-- Not Found -->
+    <div v-if="!product" class="column items-center justify-center" style="height: 60vh">
+      <q-icon name="search_off" size="64px" color="grey-3" />
+      <div class="text-body2 text-grey-5 q-mt-md">상품을 찾을 수 없어요</div>
+      <q-btn flat label="돌아가기" color="primary" class="q-mt-sm" @click="$router.back()" />
     </div>
 
-    <!-- Content -->
-    <div class="content-wrap">
-      <!-- Title Card -->
-      <div class="title-section">
-        <div class="store-label">
-          <q-icon name="storefront" size="14px" color="grey-5" />
-          <span>CU 강남점</span>
+    <template v-else>
+      <!-- Hero Image -->
+      <div class="hero-wrap">
+        <q-img
+          :src="product.image"
+          height="300px"
+          fit="cover"
+          class="hero-img"
+        />
+        <div class="hero-overlay" />
+        <q-btn
+          flat round dense
+          icon="arrow_back"
+          class="back-btn"
+          @click="$router.back()"
+        />
+        <div class="hero-badge">-{{ product.discountPercent }}%</div>
+      </div>
+
+      <!-- Content -->
+      <div class="content-wrap">
+        <!-- Title Card -->
+        <div class="title-section">
+          <div class="store-label">
+            <q-icon name="storefront" size="14px" color="grey-5" />
+            <span>{{ product.storeName }}</span>
+          </div>
+          <div class="product-name">{{ product.name }}</div>
+          <div class="expiry-row">
+            <q-icon name="schedule" size="14px" color="negative" />
+            <span class="expiry-text text-negative">
+              {{ daysLeft === 0 ? '오늘 마감' : `D-${daysLeft}` }} · {{ formatDate(product.expiryDate) }} 마감
+            </span>
+          </div>
         </div>
-        <div class="product-name">딸기 우유</div>
-        <div class="expiry-row">
-          <q-icon name="schedule" size="14px" color="negative" />
-          <span class="expiry-text text-negative">D-2 · 2026년 5월 21일 마감</span>
+
+        <div class="divider" />
+
+        <!-- Price Section -->
+        <div class="price-section">
+          <div class="price-label">가격 정보</div>
+          <div class="price-row">
+            <div class="price-item">
+              <div class="price-item-label">정가</div>
+              <div class="price-item-value original">{{ product.originalPrice.toLocaleString() }}원</div>
+            </div>
+            <q-icon name="arrow_forward" color="grey-4" size="18px" />
+            <div class="price-item">
+              <div class="price-item-label">할인가</div>
+              <div class="price-item-value discount">{{ product.discountPrice.toLocaleString() }}원</div>
+            </div>
+            <div class="price-item">
+              <div class="price-item-label">절약</div>
+              <div class="price-item-value saving">{{ (product.originalPrice - product.discountPrice).toLocaleString() }}원</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider" />
+
+        <!-- Store Info -->
+        <div class="info-section">
+          <div class="info-label">편의점 정보</div>
+          <div class="info-row">
+            <div class="info-icon-wrap">
+              <q-icon name="storefront" size="18px" color="primary" />
+            </div>
+            <div>
+              <div class="info-main">{{ product.storeName }}</div>
+              <div class="info-sub">{{ product.location }}</div>
+            </div>
+            <q-space />
+            <q-btn flat round dense icon="map" color="grey-5" size="sm" />
+          </div>
         </div>
       </div>
 
-      <div class="divider" />
-
-      <!-- Price Section -->
-      <div class="price-section">
-        <div class="price-label">가격 정보</div>
-        <div class="price-row">
-          <div class="price-item">
-            <div class="price-item-label">정가</div>
-            <div class="price-item-value original">2,500원</div>
-          </div>
-          <q-icon name="arrow_forward" color="grey-4" size="18px" />
-          <div class="price-item">
-            <div class="price-item-label">할인가</div>
-            <div class="price-item-value discount">1,500원</div>
-          </div>
-          <div class="price-item">
-            <div class="price-item-label">절약</div>
-            <div class="price-item-value saving">1,000원</div>
-          </div>
-        </div>
+      <!-- Bottom Action Bar -->
+      <div class="action-bar">
+        <q-btn flat round icon="favorite_border" color="grey-5" class="fav-btn" />
+        <q-btn unelevated label="구매하기" color="primary" class="buy-btn" rounded />
       </div>
-
-      <div class="divider" />
-
-      <!-- Store Info -->
-      <div class="info-section">
-        <div class="info-label">편의점 정보</div>
-        <div class="info-row">
-          <div class="info-icon-wrap">
-            <q-icon name="storefront" size="18px" color="primary" />
-          </div>
-          <div>
-            <div class="info-main">CU 강남점</div>
-            <div class="info-sub">서울 강남구 역삼동 123</div>
-          </div>
-          <q-space />
-          <q-btn flat round dense icon="map" color="grey-5" size="sm" />
-        </div>
-      </div>
-    </div>
-
-    <!-- Bottom Action Bar -->
-    <div class="action-bar">
-      <q-btn
-        flat round
-        icon="favorite_border"
-        color="grey-5"
-        class="fav-btn"
-      />
-      <q-btn
-        unelevated
-        label="구매하기"
-        color="primary"
-        class="buy-btn"
-        rounded
-      />
-    </div>
+    </template>
   </q-page>
 </template>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { mockProducts } from '../data/mockProducts'
+
+const route = useRoute()
+
+const product = computed(() =>
+  mockProducts.find((p) => p.id === route.params.id)
+)
+
+const daysLeft = computed(() => {
+  if (!product.value) return 0
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const expiry = new Date(product.value.expiryDate)
+  expiry.setHours(0, 0, 0, 0)
+  return Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+})
+
+function formatDate(date: string) {
+  return new Date(date).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })
+}
+</script>
 
 <style scoped lang="scss">
 .detail-page {
