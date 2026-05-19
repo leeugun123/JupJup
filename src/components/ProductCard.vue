@@ -1,59 +1,131 @@
 <template>
-  <q-card class="product-card cursor-pointer">
-    <q-img :src="product.image" height="200px" />
-    <q-card-section>
-      <div class="discount-badge">-{{ product.discountPercent }}%</div>
-      <div class="text-h6 ellipsis-2-lines q-mt-md">{{ product.name }}</div>
-      <div class="text-caption text-grey">{{ product.storeName }}</div>
-      <div class="q-mt-md">
-        <div class="text-caption text-strike">₩{{ product.originalPrice.toLocaleString() }}</div>
-        <div class="text-h6 text-primary">₩{{ product.discountPrice.toLocaleString() }}</div>
+  <q-card class="product-card cursor-pointer" flat @click="emit('click')">
+    <div class="img-wrap">
+      <q-img :src="product.image" height="150px" fit="cover" class="product-img" />
+      <div class="badge-discount">-{{ product.discountPercent }}%</div>
+      <div v-if="daysLeft <= 2" class="badge-expiry" :class="{ today: daysLeft === 0 }">
+        {{ daysLeft === 0 ? '오늘 마감' : `D-${daysLeft}` }}
       </div>
-      <div class="text-caption text-grey q-mt-md">유통기한: {{ formatDate(product.expiryDate) }}</div>
-    </q-card-section>
+    </div>
+    <div class="card-body">
+      <div class="store-name">{{ product.storeName }}</div>
+      <div class="product-name">{{ product.name }}</div>
+      <div class="price-wrap">
+        <span class="original-price">{{ product.originalPrice.toLocaleString() }}원</span>
+        <span class="discount-price">{{ product.discountPrice.toLocaleString() }}원</span>
+      </div>
+    </div>
   </q-card>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { Product } from '../types/product'
 
-interface Props {
-  product: Product
-}
+const props = defineProps<{ product: Product }>()
+const emit = defineEmits(['click'])
 
-defineProps<Props>()
-
-function formatDate(date: string) {
-  return new Date(date).toLocaleDateString('ko-KR')
-}
+const daysLeft = computed(() => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const expiry = new Date(props.product.expiryDate)
+  expiry.setHours(0, 0, 0, 0)
+  return Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+})
 </script>
 
 <style scoped lang="scss">
 .product-card {
-  transition: all 0.3s ease;
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s, box-shadow 0.15s;
+
+  &:active {
+    transform: scale(0.97);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
   }
 }
-.discount-badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: #ff4444;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-weight: bold;
-  font-size: 12px;
+
+.img-wrap {
+  position: relative;
+  overflow: hidden;
 }
-.ellipsis-2-lines {
+
+.product-img {
+  display: block;
+}
+
+.badge-discount {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #FF4757;
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 8px;
+  letter-spacing: -0.3px;
+}
+
+.badge-expiry {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(255, 71, 87, 0.85);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
+
+  &.today {
+    background: rgba(30, 30, 30, 0.85);
+  }
+}
+
+.card-body {
+  padding: 10px 12px 14px;
+}
+
+.store-name {
+  font-size: 11px;
+  color: #AAAAAA;
+  font-weight: 500;
+  margin-bottom: 3px;
+}
+
+.product-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1A1A2E;
+  line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  margin-bottom: 8px;
 }
-.text-strike {
+
+.price-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.original-price {
+  font-size: 11px;
+  color: #CCCCCC;
   text-decoration: line-through;
+}
+
+.discount-price {
+  font-size: 16px;
+  font-weight: 800;
+  color: #FF4757;
+  letter-spacing: -0.5px;
 }
 </style>
