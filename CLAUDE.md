@@ -29,11 +29,11 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 | `/search` | `SearchPage.vue` | 최근 검색어, 인기 검색어, 카테고리, 검색 결과 |
 | `/favorites` | `FavoritesPage.vue` | 찜 목록 2열 그리드, 빈 상태 UI 포함 |
 | `/my` | `MyPage.vue` | 프로필, 통계 카드, 메뉴 섹션, 로그인 다이얼로그 |
-| `/product/:id` | `ProductDetailPage.vue` | 히어로 이미지, 가격 정보, 하단 고정 액션바 (mock 데이터, 라우트 파라미터 미연결) |
+| `/product/:id` | `ProductDetailPage.vue` | 히어로 이미지, 가격 정보, 하단 고정 액션바, 라우트 파라미터로 상품 조회 |
 
 **Shared types:** `src/types/product.ts` exports the `Product` interface. Import from here — not from individual `.vue` files.
 
-**Mock data:** All product data is hardcoded in page components. There is no API layer or store yet.
+**Mock data:** `src/data/mockProducts.ts`에서 중앙 관리. `HomePage`, `SearchPage`, `ProductDetailPage`가 공통으로 import해서 사용. API 레이어 없음.
 
 **Styling:** Global SCSS variables in `src/css/quasar.variables.scss`. Brand colors: primary `#FF4757` (red), secondary `#FFA502` (orange), accent `#5352ED` (purple). Background color for pages: `#F7F8FA`. Scoped SCSS inside each component uses `lang="scss"`.
 
@@ -54,5 +54,5 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 - `q-tab` + `to` + `v-model` 조합은 라우팅 충돌 발생 — 반드시 `q-route-tab` 사용
 
 **ProductDetailPage.vue**
-- 아직 라우트 파라미터(`id`)를 실제 데이터 조회에 사용하지 않음 — mock 데이터 하드코딩
+- `useRoute().params.id`로 `mockProducts`에서 상품 조회, 없으면 "찾을 수 없어요" 화면 표시
 - 하단 액션바가 `position: fixed`이므로 페이지에 `padding-bottom: 80px` 필요
