@@ -19,7 +19,7 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 
 **Router mode:** `hash` (configured in `quasar.config.ts`). All routes are nested under `MainLayout.vue`.
 
-**Layout:** `MainLayout.vue` wraps every page with a top header (red gradient) and a bottom tab bar (홈 / 검색 / 찜 / 마이). The tab bar syncs its active state with `route.path` via a watcher — not from router-link's active class.
+**Layout:** `MainLayout.vue` wraps every page with a top header (red gradient) and a bottom tab bar (홈 / 검색 / 찜 / 마이). 탭바는 `q-route-tab`을 사용해 라우트 기반으로 활성 상태를 자동 감지한다.
 
 **Pages and routes:**
 
@@ -48,8 +48,10 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 
 **MainLayout.vue**
 - 헤더: 빨간 그라디언트 (`#FF4757 → #FF6B6B`), 브랜드명 + "마감 할인 특가" 태그라인
-- 탭바: `inactive-color="grey-5"`, `align="justify"` 설정 필수 (없으면 비활성 탭 안 보임)
-- 탭 활성 상태: `route.path`를 watch해서 `tab` ref를 수동으로 업데이트
+- 탭바: `q-route-tab` 사용 — `v-model` / watcher 불필요, 라우트 기반 자동 활성화
+- 탭바: `inactive-color="grey-5"`, `align="justify"` 필수 (없으면 비활성 탭 안 보임)
+- 홈 탭에 `exact` 속성 필수 — 없으면 모든 경로에서 홈 탭이 활성으로 표시됨
+- `q-tab` + `to` + `v-model` 조합은 라우팅 충돌 발생 — 반드시 `q-route-tab` 사용
 
 **ProductDetailPage.vue**
 - 아직 라우트 파라미터(`id`)를 실제 데이터 조회에 사용하지 않음 — mock 데이터 하드코딩
