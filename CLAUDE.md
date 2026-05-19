@@ -39,6 +39,7 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 
 **Stores:**
 - `src/stores/favorites.ts` — 찜한 상품 ID 목록 관리. `toggle(id)`, `isFavorite(id)`, `favoriteProducts` (computed) 제공.
+- `src/stores/purchases.ts` — 구매 내역 관리. `add(product)` 호출 시 랜덤 코드와 함께 `Purchase` 객체 생성 및 반환. `totalSavings()` 로 누적 절약 금액 계산.
 
 **Styling:** Global SCSS variables in `src/css/quasar.variables.scss`. Brand colors: primary `#FF4757` (red), secondary `#FFA502` (orange), accent `#5352ED` (purple). Background color for pages: `#F7F8FA`. Scoped SCSS inside each component uses `lang="scss"`.
 
@@ -61,4 +62,6 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 
 **ProductDetailPage.vue**
 - `useRoute().params.id`로 `mockProducts`에서 상품 조회, 없으면 "찾을 수 없어요" 화면 표시
-- 하단 액션바가 `position: fixed`이므로 페이지에 `padding-bottom: 80px` 필요
+- 하단 액션바: `position: fixed; bottom: 60px` — 탭바(60px) 위에 위치해야 함. `bottom: 0`으로 설정하면 탭바에 가려짐
+- 구매 플로우: 구매하기 버튼 → 확인 바텀시트 → 구매 완료 다이얼로그(코드 + 바코드) → 홈으로 이동
+- 구매 완료 시 `usePurchasesStore().add(product)` 호출
