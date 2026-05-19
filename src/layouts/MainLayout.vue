@@ -13,17 +13,16 @@
 
     <q-footer class="app-footer">
       <q-tabs
-        v-model="tab"
         active-color="primary"
         inactive-color="grey-5"
         indicator-color="transparent"
         align="justify"
         class="footer-tabs"
       >
-        <q-tab name="home" icon="home" label="홈" to="/" class="footer-tab" />
-        <q-tab name="search" icon="search" label="검색" to="/search" class="footer-tab" />
-        <q-tab name="favorites" icon="favorite" label="찜" to="/favorites" class="footer-tab" />
-        <q-tab name="my" icon="person" label="마이" to="/my" class="footer-tab" />
+        <q-route-tab to="/" exact icon="home" label="홈" class="footer-tab" />
+        <q-route-tab to="/search" icon="search" label="검색" class="footer-tab" />
+        <q-route-tab to="/favorites" icon="favorite" label="찜" class="footer-tab" />
+        <q-route-tab to="/my" icon="person" label="마이" class="footer-tab" />
       </q-tabs>
     </q-footer>
 
@@ -34,18 +33,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
-
-const route = useRoute()
-const tab = ref('home')
-
-watch(() => route.path, (path) => {
-  if (path.includes('favorites')) tab.value = 'favorites'
-  else if (path.includes('search')) tab.value = 'search'
-  else if (path.includes('my')) tab.value = 'my'
-  else tab.value = 'home'
-}, { immediate: true })
 </script>
 
 <style scoped lang="scss">
