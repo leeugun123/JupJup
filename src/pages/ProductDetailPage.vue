@@ -10,25 +10,14 @@
     <template v-else>
       <!-- Hero Image -->
       <div class="hero-wrap">
-        <q-img
-          :src="product.image"
-          height="300px"
-          fit="cover"
-          class="hero-img"
-        />
+        <q-img :src="product.image" height="300px" fit="cover" />
         <div class="hero-overlay" />
-        <q-btn
-          flat round dense
-          icon="arrow_back"
-          class="back-btn"
-          @click="$router.back()"
-        />
+        <q-btn flat round dense icon="arrow_back" class="back-btn" @click="$router.back()" />
         <div class="hero-badge">-{{ product.discountPercent }}%</div>
       </div>
 
       <!-- Content -->
       <div class="content-wrap">
-        <!-- Title Card -->
         <div class="title-section">
           <div class="store-label">
             <q-icon name="storefront" size="14px" color="grey-5" />
@@ -45,7 +34,6 @@
 
         <div class="divider" />
 
-        <!-- Price Section -->
         <div class="price-section">
           <div class="price-label">가격 정보</div>
           <div class="price-row">
@@ -67,7 +55,6 @@
 
         <div class="divider" />
 
-        <!-- Store Info -->
         <div class="info-section">
           <div class="info-label">편의점 정보</div>
           <div class="info-row">
@@ -91,27 +78,99 @@
           :icon="isFav ? 'favorite' : 'favorite_border'"
           :color="isFav ? 'negative' : 'grey-5'"
           class="fav-btn"
-          @click="favStore.toggle(product!.id)"
+          @click="favStore.toggle(product.id)"
         />
-        <q-btn unelevated label="구매하기" color="primary" class="buy-btn" rounded />
+        <q-btn unelevated label="구매하기" color="primary" class="buy-btn" rounded @click="showConfirm = true" />
       </div>
     </template>
+
+    <!-- 구매 확인 바텀시트 -->
+    <q-dialog v-model="showConfirm" position="bottom">
+      <q-card class="confirm-sheet" v-if="product">
+        <div class="confirm-handle" />
+        <div class="confirm-body">
+          <div class="confirm-title">구매하기</div>
+          <div class="confirm-product-row">
+            <q-img :src="product.image" width="60px" height="60px" fit="cover" class="confirm-img" />
+            <div class="confirm-product-info">
+              <div class="confirm-store">{{ product.storeName }}</div>
+              <div class="confirm-name">{{ product.name }}</div>
+              <div class="confirm-price">{{ product.discountPrice.toLocaleString() }}원</div>
+            </div>
+          </div>
+          <div class="confirm-savings-row">
+            <q-icon name="savings" color="positive" size="16px" />
+            <span class="confirm-savings-text">
+              정가 대비 <strong>{{ (product.originalPrice - product.discountPrice).toLocaleString() }}원</strong> 절약!
+            </span>
+          </div>
+          <div class="confirm-actions">
+            <q-btn flat label="취소" color="grey-5" class="confirm-cancel" @click="showConfirm = false" />
+            <q-btn unelevated label="구매 확인" color="primary" class="confirm-ok" rounded @click="doPurchase" />
+          </div>
+        </div>
+      </q-card>
+    </q-dialog>
+
+    <!-- 구매 완료 다이얼로그 -->
+    <q-dialog v-model="showSuccess">
+      <q-card class="success-dialog" v-if="lastPurchase">
+        <div class="success-icon-wrap">
+          <q-icon name="check_circle" color="positive" size="56px" />
+        </div>
+        <div class="success-title">구매 완료!</div>
+        <div class="success-sub">편의점에서 아래 코드를 제시해주세요</div>
+
+        <div class="success-code-wrap">
+          <div class="success-code">{{ lastPurchase.code }}</div>
+          <div class="barcode-wrap">
+            <div v-for="i in 40" :key="i" class="barcode-bar" :style="{ width: `${Math.random() > 0.5 ? 3 : 2}px` }" />
+          </div>
+        </div>
+
+        <div class="success-info">
+          <div class="success-info-row">
+            <span class="success-info-label">상품</span>
+            <span class="success-info-value">{{ lastPurchase.product.name }}</span>
+          </div>
+          <div class="success-info-row">
+            <span class="success-info-label">결제금액</span>
+            <span class="success-info-value text-primary">{{ lastPurchase.product.discountPrice.toLocaleString() }}원</span>
+          </div>
+          <div class="success-info-row">
+            <span class="success-info-label">절약금액</span>
+            <span class="success-info-value text-positive">{{ lastPurchase.savings.toLocaleString() }}원</span>
+          </div>
+        </div>
+
+        <q-btn unelevated label="확인" color="primary" class="success-close-btn" rounded @click="onSuccessClose" />
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { mockProducts } from '../data/mockProducts'
 import { useFavoritesStore } from '../stores/favorites'
+import { usePurchasesStore } from '../stores/purchases'
+import type { Purchase } from '../stores/purchases'
 
 const route = useRoute()
+const router = useRouter()
 const favStore = useFavoritesStore()
-const isFav = computed(() => product.value ? favStore.isFavorite(product.value.id) : false)
+const purchasesStore = usePurchasesStore()
+
+const showConfirm = ref(false)
+const showSuccess = ref(false)
+const lastPurchase = ref<Purchase | null>(null)
 
 const product = computed(() =>
   mockProducts.find((p) => p.id === route.params.id)
 )
+
+const isFav = computed(() => product.value ? favStore.isFavorite(product.value.id) : false)
 
 const daysLeft = computed(() => {
   if (!product.value) return 0
@@ -124,6 +183,18 @@ const daysLeft = computed(() => {
 
 function formatDate(date: string) {
   return new Date(date).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })
+}
+
+function doPurchase() {
+  if (!product.value) return
+  showConfirm.value = false
+  lastPurchase.value = purchasesStore.add(product.value)
+  showSuccess.value = true
+}
+
+function onSuccessClose() {
+  showSuccess.value = false
+  void router.push('/')
 }
 </script>
 
@@ -176,9 +247,7 @@ function formatDate(date: string) {
   padding: 24px 20px 0;
 }
 
-.title-section {
-  margin-bottom: 20px;
-}
+.title-section { margin-bottom: 20px; }
 
 .store-label {
   display: flex;
@@ -205,10 +274,7 @@ function formatDate(date: string) {
   gap: 4px;
 }
 
-.expiry-text {
-  font-size: 13px;
-  font-weight: 600;
-}
+.expiry-text { font-size: 13px; font-weight: 600; }
 
 .divider {
   height: 1px;
@@ -216,13 +282,9 @@ function formatDate(date: string) {
   margin: 0 -20px 20px;
 }
 
-// ── Price ──────────────────────────────────────
-.price-section {
-  margin-bottom: 20px;
-}
+.price-section { margin-bottom: 20px; }
 
-.price-label,
-.info-label {
+.price-label, .info-label {
   font-size: 12px;
   font-weight: 700;
   color: #AAAAAA;
@@ -237,49 +299,23 @@ function formatDate(date: string) {
   gap: 12px;
 }
 
-.price-item {
-  flex: 1;
-  text-align: center;
-}
+.price-item { flex: 1; text-align: center; }
 
-.price-item-label {
-  font-size: 11px;
-  color: #AAAAAA;
-  margin-bottom: 4px;
-}
+.price-item-label { font-size: 11px; color: #AAAAAA; margin-bottom: 4px; }
 
 .price-item-value {
   font-size: 17px;
   font-weight: 800;
   letter-spacing: -0.5px;
 
-  &.original {
-    font-size: 15px;
-    color: #CCCCCC;
-    text-decoration: line-through;
-    font-weight: 500;
-  }
-
-  &.discount {
-    color: #FF4757;
-    font-size: 20px;
-  }
-
-  &.saving {
-    color: #2ED573;
-  }
+  &.original { font-size: 15px; color: #CCCCCC; text-decoration: line-through; font-weight: 500; }
+  &.discount { color: #FF4757; font-size: 20px; }
+  &.saving { color: #2ED573; }
 }
 
-// ── Store Info ─────────────────────────────────
-.info-section {
-  padding-bottom: 24px;
-}
+.info-section { padding-bottom: 24px; }
 
-.info-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+.info-row { display: flex; align-items: center; gap: 12px; }
 
 .info-icon-wrap {
   width: 40px;
@@ -292,22 +328,13 @@ function formatDate(date: string) {
   flex-shrink: 0;
 }
 
-.info-main {
-  font-size: 14px;
-  font-weight: 700;
-  color: #1A1A2E;
-}
-
-.info-sub {
-  font-size: 12px;
-  color: #AAAAAA;
-  margin-top: 2px;
-}
+.info-main { font-size: 14px; font-weight: 700; color: #1A1A2E; }
+.info-sub { font-size: 12px; color: #AAAAAA; margin-top: 2px; }
 
 // ── Action Bar ────────────────────────────────
 .action-bar {
   position: fixed;
-  bottom: 0;
+  bottom: 60px;
   left: 0;
   right: 0;
   background: white;
@@ -333,4 +360,138 @@ function formatDate(date: string) {
   font-weight: 800;
   letter-spacing: -0.3px;
 }
+
+// ── Confirm Sheet ─────────────────────────────
+.confirm-sheet {
+  border-radius: 24px 24px 0 0 !important;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.confirm-handle {
+  width: 36px;
+  height: 4px;
+  background: #E0E0E0;
+  border-radius: 2px;
+  margin: 12px auto 0;
+}
+
+.confirm-body { padding: 20px 20px 24px; }
+
+.confirm-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1A1A2E;
+  letter-spacing: -0.5px;
+  margin-bottom: 16px;
+}
+
+.confirm-product-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: #F7F8FA;
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.confirm-img { border-radius: 10px; flex-shrink: 0; }
+
+.confirm-store { font-size: 11px; color: #AAAAAA; margin-bottom: 2px; }
+.confirm-name { font-size: 14px; font-weight: 700; color: #1A1A2E; margin-bottom: 4px; }
+.confirm-price { font-size: 18px; font-weight: 800; color: #FF4757; letter-spacing: -0.5px; }
+
+.confirm-savings-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #F0FFF4;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 20px;
+}
+
+.confirm-savings-text { font-size: 13px; color: #444; }
+
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.confirm-cancel { flex: 1; height: 48px; }
+.confirm-ok { flex: 2; height: 48px; font-weight: 700; }
+
+// ── Success Dialog ────────────────────────────
+.success-dialog {
+  width: 320px;
+  border-radius: 24px !important;
+  padding: 28px 24px 24px;
+  text-align: center;
+}
+
+.success-icon-wrap { margin-bottom: 12px; }
+
+.success-title {
+  font-size: 22px;
+  font-weight: 900;
+  color: #1A1A2E;
+  letter-spacing: -0.8px;
+  margin-bottom: 6px;
+}
+
+.success-sub {
+  font-size: 13px;
+  color: #AAAAAA;
+  margin-bottom: 20px;
+}
+
+.success-code-wrap {
+  background: #F7F8FA;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.success-code {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 6px;
+  color: #1A1A2E;
+  margin-bottom: 12px;
+}
+
+.barcode-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 40px;
+}
+
+.barcode-bar {
+  height: 100%;
+  background: #1A1A2E;
+  border-radius: 1px;
+}
+
+.success-info {
+  text-align: left;
+  border-top: 1px solid #F0F0F0;
+  padding-top: 16px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.success-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.success-info-label { font-size: 13px; color: #AAAAAA; }
+.success-info-value { font-size: 13px; font-weight: 700; color: #1A1A2E; }
+
+.success-close-btn { width: 100%; height: 48px; font-size: 15px; font-weight: 800; }
 </style>

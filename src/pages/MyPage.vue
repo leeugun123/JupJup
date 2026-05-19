@@ -24,12 +24,12 @@
         </div>
         <div class="stat-divider" />
         <div class="stat-item">
-          <div class="stat-value text-primary">2</div>
-          <div class="stat-label">방문 편의점</div>
+          <div class="stat-value text-primary">{{ purchasesStore.history.length }}</div>
+          <div class="stat-label">이용 내역</div>
         </div>
         <div class="stat-divider" />
         <div class="stat-item">
-          <div class="stat-value text-positive">2,700원</div>
+          <div class="stat-value text-positive">{{ totalSavings.toLocaleString() }}원</div>
           <div class="stat-label">총 절약 금액</div>
         </div>
       </div>
@@ -172,10 +172,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useFavoritesStore } from '../stores/favorites'
+import { usePurchasesStore } from '../stores/purchases'
 
 const favStore = useFavoritesStore()
+const purchasesStore = usePurchasesStore()
+const totalSavings = computed(() => purchasesStore.totalSavings())
 const notifOn = ref(true)
 const showLoginDialog = ref(false)
 </script>
