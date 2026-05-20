@@ -47,17 +47,20 @@
             </div>
             <span class="menu-label">찜 목록</span>
             <div class="menu-right">
-              <q-badge color="negative" label="3" rounded />
+              <q-badge v-if="favStore.ids.length > 0" color="negative" :label="favStore.ids.length" rounded />
               <q-icon name="chevron_right" color="grey-4" size="18px" />
             </div>
           </div>
           <q-separator inset />
-          <div class="menu-item">
+          <div class="menu-item" @click="$router.push('/history')">
             <div class="menu-icon-wrap" style="background:#F0F4FF">
               <q-icon name="receipt_long" color="info" size="18px" />
             </div>
             <span class="menu-label">이용 내역</span>
-            <q-icon name="chevron_right" color="grey-4" size="18px" />
+            <div class="menu-right">
+              <q-badge v-if="purchasesStore.history.length > 0" color="info" :label="purchasesStore.history.length" rounded />
+              <q-icon name="chevron_right" color="grey-4" size="18px" />
+            </div>
           </div>
           <q-separator inset />
           <div class="menu-item">
