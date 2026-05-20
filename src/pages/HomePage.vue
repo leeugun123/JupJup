@@ -1,16 +1,40 @@
 <template>
   <q-page class="home-page">
-    <!-- Search Shortcut -->
-    <div class="search-shortcut q-px-md q-pt-md q-pb-sm" @click="goToSearch">
-      <div class="search-fake">
-        <q-icon name="search" color="grey-5" size="18px" />
-        <span class="search-placeholder">오늘의 마감 특가 찾기...</span>
+    <!-- Banner Carousel -->
+    <div class="banner-section">
+      <q-carousel
+        v-model="bannerSlide"
+        animated
+        infinite
+        :autoplay="3500"
+        transition-prev="slide-right"
+        transition-next="slide-left"
+        height="152px"
+        class="banner-carousel"
+      >
+        <q-carousel-slide v-for="(banner, i) in banners" :key="i" :name="i" class="q-pa-none">
+          <div class="banner-slide" :style="`background: ${banner.gradient}`">
+            <div class="banner-text">
+              <div class="banner-tag">{{ banner.tag }}</div>
+              <div class="banner-title">{{ banner.title }}</div>
+              <div class="banner-sub">{{ banner.sub }}</div>
+            </div>
+            <div class="banner-emoji">{{ banner.emoji }}</div>
+          </div>
+        </q-carousel-slide>
+      </q-carousel>
+      <div class="banner-dots">
+        <span
+          v-for="(_, i) in banners"
+          :key="i"
+          class="dot"
+          :class="{ 'dot--active': bannerSlide === i }"
+        />
       </div>
     </div>
 
     <!-- Filters -->
     <div class="filter-section q-pt-sm q-pb-xs">
-      <!-- 카테고리 -->
       <div class="filter-row">
         <div
           v-for="cat in categories"
@@ -23,19 +47,35 @@
           <span>{{ cat.label }}</span>
         </div>
       </div>
-      <!-- 편의점 브랜드 -->
       <div class="filter-row">
         <div
           v-for="store in stores"
           :key="store.key"
           class="filter-chip filter-chip--store"
-          :class="{ 'filter-chip--active': selectedStore === store.key }"
+          :style="
+            selectedStore === store.key
+              ? { background: store.color, borderColor: store.color, color: 'white' }
+              : {}
+          "
           @click="selectedStore = store.key"
         >
           {{ store.label }}
         </div>
       </div>
     </div>
+
+    <!-- Urgent Section -->
+    <section v-if="urgentProducts.length" class="q-px-md q-mb-md">
+      <div class="section-header q-mb-sm">
+        <div class="section-title">⚡ 마감 임박</div>
+        <div class="urgent-sub">지금 바로 구매하세요!</div>
+      </div>
+      <div class="urgent-scroll">
+        <div v-for="product in urgentProducts" :key="product.id" class="urgent-item">
+          <ProductCard :product="product" @click="goToDetail(product.id)" />
+        </div>
+      </div>
+    </section>
 
     <!-- Section Header -->
     <div class="section-header q-px-md q-pt-xs q-pb-xs">
@@ -78,8 +118,33 @@ import { mockProducts } from '../data/mockProducts';
 
 const router = useRouter();
 
+const bannerSlide = ref(0);
 const selectedCategory = ref('all');
 const selectedStore = ref('all');
+
+const banners = [
+  {
+    gradient: 'linear-gradient(135deg, #FF4757 0%, #FF8A65 100%)',
+    emoji: '⚡',
+    tag: '오늘만!',
+    title: '마감 임박 특가',
+    sub: '매일 최대 50% 할인 혜택',
+  },
+  {
+    gradient: 'linear-gradient(135deg, #5352ED 0%, #8E8FFA 100%)',
+    emoji: '🎁',
+    tag: '이 주의 픽',
+    title: '편의점 베스트 특가',
+    sub: '엄선된 할인 상품만 모았어요',
+  },
+  {
+    gradient: 'linear-gradient(135deg, #2ED573 0%, #1ABC9C 100%)',
+    emoji: '🌱',
+    tag: '캠페인',
+    title: '음식 낭비를 줄여요',
+    sub: '마감 특가로 지구도 살리고 절약도!',
+  },
+];
 
 const categories = [
   { key: 'all', emoji: '🏷️', label: '전체' },
@@ -92,11 +157,26 @@ const categories = [
 ];
 
 const stores = [
-  { key: 'all', label: '전체' },
-  { key: 'store1', label: 'CU' },
-  { key: 'store2', label: 'GS25' },
-  { key: 'store3', label: '세븐일레븐' },
+  { key: 'all', label: '전체', color: '#ff4757' },
+  { key: 'store1', label: 'CU', color: '#0051A1' },
+  { key: 'store2', label: 'GS25', color: '#F05014' },
+  { key: 'store3', label: '세븐일레븐', color: '#007A33' },
 ];
+
+function daysLeftFor(expiryDate: string): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const expiry = new Date(expiryDate);
+  expiry.setHours(0, 0, 0, 0);
+  return Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+const urgentProducts = computed(() =>
+  mockProducts.filter((p) => {
+    const d = daysLeftFor(p.expiryDate);
+    return d >= 0 && d <= 2;
+  }),
+);
 
 const filteredProducts = computed(() =>
   mockProducts.filter((p) => {
@@ -109,10 +189,6 @@ const filteredProducts = computed(() =>
 function goToDetail(id: string) {
   void router.push(`/product/${id}`);
 }
-
-function goToSearch() {
-  void router.push('/search');
-}
 </script>
 
 <style scoped lang="scss">
@@ -121,23 +197,82 @@ function goToSearch() {
   min-height: 100vh;
 }
 
-.search-shortcut {
-  cursor: pointer;
+// ── Banner ─────────────────────────────────────
+.banner-section {
+  position: relative;
 }
 
-.search-fake {
+.banner-carousel {
+  :deep(.q-carousel__prev-btn),
+  :deep(.q-carousel__next-btn) {
+    display: none;
+  }
+}
+
+.banner-slide {
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: white;
-  border-radius: 14px;
-  padding: 12px 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  justify-content: space-between;
+  padding: 0 24px;
 }
 
-.search-placeholder {
-  font-size: 14px;
-  color: #bbbbbb;
+.banner-text {
+  flex: 1;
+}
+
+.banner-tag {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+  letter-spacing: 0.3px;
+}
+
+.banner-title {
+  font-size: 20px;
+  font-weight: 900;
+  color: white;
+  letter-spacing: -0.8px;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.banner-sub {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.banner-emoji {
+  font-size: 56px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.banner-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 0 4px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #dddddd;
+  transition: all 0.2s;
+
+  &--active {
+    width: 18px;
+    border-radius: 3px;
+    background: #ff4757;
+  }
 }
 
 // ── Filters ────────────────────────────────────
@@ -193,6 +328,28 @@ function goToSearch() {
 .chip-emoji {
   font-size: 14px;
   line-height: 1;
+}
+
+// ── Urgent Section ─────────────────────────────
+.urgent-sub {
+  font-size: 12px;
+  color: #ff4757;
+  font-weight: 600;
+}
+
+.urgent-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.urgent-item {
+  flex: 0 0 160px;
 }
 
 // ── Section Header ─────────────────────────────

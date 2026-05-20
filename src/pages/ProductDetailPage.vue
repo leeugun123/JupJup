@@ -64,16 +64,21 @@
 
         <div class="info-section">
           <div class="info-label">편의점 정보</div>
-          <div class="info-row">
-            <div class="info-icon-wrap">
-              <q-icon name="storefront" size="18px" color="primary" />
+          <div class="store-info-card" :style="`border-left: 4px solid ${storeColor}`">
+            <div class="info-row">
+              <div class="info-icon-wrap" :style="`background: ${storeBgColor}`">
+                <q-icon name="storefront" size="18px" :style="`color: ${storeColor}`" />
+              </div>
+              <div>
+                <div class="info-main">
+                  <span class="store-brand-label" :style="`color: ${storeColor}`">{{ storeBrand }}</span>
+                  {{ product.storeName.replace(storeBrand, '').trim() }}
+                </div>
+                <div class="info-sub">{{ product.location }}</div>
+              </div>
+              <q-space />
+              <q-btn flat round dense icon="map" color="grey-5" size="sm" />
             </div>
-            <div>
-              <div class="info-main">{{ product.storeName }}</div>
-              <div class="info-sub">{{ product.location }}</div>
-            </div>
-            <q-space />
-            <q-btn flat round dense icon="map" color="grey-5" size="sm" />
           </div>
         </div>
       </div>
@@ -210,6 +215,7 @@ import { mockProducts } from '../data/mockProducts';
 import { useFavoritesStore } from '../stores/favorites';
 import { usePurchasesStore } from '../stores/purchases';
 import type { Purchase } from '../stores/purchases';
+import { storeConfig } from '../data/stores';
 
 const route = useRoute();
 const router = useRouter();
@@ -248,6 +254,13 @@ function onSuccessClose() {
   showSuccess.value = false;
   void router.push('/');
 }
+
+const storeInfo = computed(() =>
+  product.value ? storeConfig[product.value.storeId] : null,
+);
+const storeColor = computed(() => storeInfo.value?.color ?? '#ff4757');
+const storeBgColor = computed(() => storeInfo.value?.bgColor ?? '#fff0f1');
+const storeBrand = computed(() => storeInfo.value?.label ?? '');
 </script>
 
 <style scoped lang="scss">
@@ -392,6 +405,17 @@ function onSuccessClose() {
 
 .info-section {
   padding-bottom: 24px;
+}
+
+.store-info-card {
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.store-brand-label {
+  font-weight: 800;
+  margin-right: 2px;
 }
 
 .info-row {

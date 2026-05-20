@@ -18,7 +18,13 @@
       />
     </div>
     <div class="card-body">
-      <div class="store-name">{{ product.storeName }}</div>
+      <div class="store-row">
+        <span
+          class="store-brand-badge"
+          :style="`background: ${storeBgColor}; color: ${storeColor}`"
+        >{{ storeBrand }}</span>
+        <span class="store-branch">{{ product.storeName.replace(storeBrand, '').trim() }}</span>
+      </div>
       <div class="product-name">{{ product.name }}</div>
       <div class="price-wrap">
         <span class="original-price">{{ product.originalPrice.toLocaleString() }}원</span>
@@ -32,6 +38,7 @@
 import { computed } from 'vue';
 import type { Product } from '../types/product';
 import { useFavoritesStore } from '../stores/favorites';
+import { storeConfig } from '../data/stores';
 
 const props = defineProps<{ product: Product }>();
 const emit = defineEmits(['click']);
@@ -49,6 +56,10 @@ const daysLeft = computed(() => {
   expiry.setHours(0, 0, 0, 0);
   return Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 });
+
+const storeColor = computed(() => storeConfig[props.product.storeId]?.color ?? '#aaaaaa');
+const storeBgColor = computed(() => storeConfig[props.product.storeId]?.bgColor ?? '#f5f5f5');
+const storeBrand = computed(() => storeConfig[props.product.storeId]?.label ?? '');
 </script>
 
 <style scoped lang="scss">
@@ -118,11 +129,29 @@ const daysLeft = computed(() => {
   padding: 10px 12px 14px;
 }
 
-.store-name {
+.store-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 4px;
+}
+
+.store-brand-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+  letter-spacing: -0.2px;
+  flex-shrink: 0;
+}
+
+.store-branch {
   font-size: 11px;
   color: #aaaaaa;
-  font-weight: 500;
-  margin-bottom: 3px;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .product-name {

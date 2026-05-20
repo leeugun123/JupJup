@@ -7,7 +7,11 @@
           <span class="brand-tagline">마감 할인 특가</span>
         </div>
         <q-space />
-        <q-btn flat round dense icon="notifications_none" size="sm" class="notif-btn" />
+        <div class="location-chip">
+          <q-icon name="location_on" size="12px" />
+          <span>강남구</span>
+        </div>
+        <q-btn flat round dense icon="notifications_none" size="sm" class="notif-btn q-ml-xs" />
       </q-toolbar>
     </q-header>
 
@@ -62,6 +66,19 @@
   font-size: 11px;
   color: rgba(255, 255, 255, 0.75);
   font-weight: 500;
+}
+
+.location-chip {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: -0.2px;
 }
 
 .notif-btn {
