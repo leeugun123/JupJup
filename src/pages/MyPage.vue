@@ -7,12 +7,22 @@
         <div class="profile-row">
           <div class="avatar-wrap">
             <q-icon name="person" size="32px" color="white" />
+            <div v-if="authStore.isLoggedIn" class="provider-badge"
+                 :class="authStore.user!.provider === 'kakao' ? 'badge-kakao' : 'badge-naver'">
+              {{ authStore.user!.provider === 'kakao' ? 'K' : 'N' }}
+            </div>
           </div>
           <div class="profile-info">
-            <div class="profile-name">게스트 사용자</div>
-            <div class="profile-sub">로그인하고 더 많은 혜택을 받으세요</div>
+            <div class="profile-name">
+              {{ authStore.isLoggedIn ? authStore.user!.name : '게스트 사용자' }}
+            </div>
+            <div class="profile-sub">
+              {{ authStore.isLoggedIn ? authStore.user!.email : '로그인하고 더 많은 혜택을 받으세요' }}
+            </div>
           </div>
-          <q-btn flat dense round icon="chevron_right" color="white" size="12px" />
+          <q-btn v-if="!authStore.isLoggedIn"
+                 flat dense round icon="chevron_right" color="white" size="12px"
+                 @click="showLoginDialog = true" />
         </div>
       </div>
 
@@ -139,8 +149,22 @@
         </div>
       </div>
 
+      <!-- 계정 (로그인 시) -->
+      <div v-if="authStore.isLoggedIn" class="menu-section">
+        <div class="menu-section-title">계정</div>
+        <div class="menu-card">
+          <div class="menu-item" @click="showLogoutDialog = true">
+            <div class="menu-icon-wrap" style="background:#FFF5F5">
+              <q-icon name="logout" color="negative" size="18px" />
+            </div>
+            <span class="menu-label" style="color:#FF4757">로그아웃</span>
+            <q-icon name="chevron_right" color="grey-4" size="18px" />
+          </div>
+        </div>
+      </div>
+
       <!-- Login Banner -->
-      <div class="login-banner" @click="showLoginDialog = true">
+      <div v-if="!authStore.isLoggedIn" class="login-banner" @click="showLoginDialog = true">
         <div class="login-banner-text">
           <div class="login-banner-title">로그인하고 개인화된 할인을 받아보세요</div>
           <div class="login-banner-sub">찜 목록, 알림 설정이 저장돼요</div>
@@ -148,6 +172,21 @@
         <q-btn label="로그인" color="primary" unelevated class="login-btn" />
       </div>
     </div>
+
+    <!-- Logout Confirm Dialog -->
+    <q-dialog v-model="showLogoutDialog">
+      <q-card class="logout-dialog">
+        <q-card-section class="text-center q-pt-xl q-pb-md">
+          <q-icon name="logout" size="40px" color="negative" />
+          <div class="logout-title q-mt-md">로그아웃</div>
+          <div class="logout-sub q-mt-sm">정말 로그아웃 하시겠어요?</div>
+        </q-card-section>
+        <q-card-section class="logout-actions q-px-lg q-pb-xl">
+          <q-btn flat label="취소" color="grey-5" class="logout-cancel-btn" @click="showLogoutDialog = false" />
+          <q-btn unelevated label="로그아웃" color="negative" rounded class="logout-confirm-btn" @click="doLogout" />
+        </q-card-section>
+      </q-card>
+    </q-dialog>
 
     <!-- Login Dialog -->
     <q-dialog v-model="showLoginDialog">
@@ -161,11 +200,13 @@
             label="카카오로 시작하기"
             unelevated
             class="kakao-btn"
+            @click="doLogin('kakao')"
           />
           <q-btn
             label="네이버로 시작하기"
             unelevated
             class="naver-btn"
+            @click="doLogin('naver')"
           />
           <q-btn flat label="닫기" color="grey-5" @click="showLoginDialog = false" />
         </q-card-section>
@@ -175,15 +216,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useFavoritesStore } from '../stores/favorites'
 import { usePurchasesStore } from '../stores/purchases'
+import { useAuthStore } from '../stores/auth'
 
 const favStore = useFavoritesStore()
 const purchasesStore = usePurchasesStore()
+const authStore = useAuthStore()
 const totalSavings = computed(() => purchasesStore.totalSavings())
 const notifOn = ref(true)
 const showLoginDialog = ref(false)
+const showLogoutDialog = ref(false)
+
+onMounted(() => authStore.init())
+
+function doLogin(provider: 'kakao' | 'naver') {
+  authStore.login(provider)
+  showLoginDialog.value = false
+}
+
+function doLogout() {
+  authStore.logout()
+  showLogoutDialog.value = false
+}
 </script>
 
 <style scoped lang="scss">
@@ -219,6 +275,7 @@ const showLoginDialog = ref(false)
 }
 
 .avatar-wrap {
+  position: relative;
   width: 64px;
   height: 64px;
   background: rgba(255, 255, 255, 0.2);
@@ -228,6 +285,24 @@ const showLoginDialog = ref(false)
   justify-content: center;
   border: 2.5px solid rgba(255, 255, 255, 0.5);
   flex-shrink: 0;
+}
+
+.provider-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 900;
+  border: 2px solid white;
+
+  &.badge-kakao { background: #FEE500; color: #3C1E1E; }
+  &.badge-naver { background: #03C75A; color: white; }
 }
 
 .profile-info {
@@ -430,4 +505,30 @@ const showLoginDialog = ref(false)
   font-weight: 700;
   font-size: 14px;
 }
+
+// ── Logout Dialog ─────────────────────────────
+.logout-dialog {
+  width: 300px;
+  border-radius: 24px !important;
+}
+
+.logout-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1A1A2E;
+  letter-spacing: -0.5px;
+}
+
+.logout-sub {
+  font-size: 14px;
+  color: #AAAAAA;
+}
+
+.logout-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.logout-cancel-btn { flex: 1; height: 44px; }
+.logout-confirm-btn { flex: 2; height: 44px; font-weight: 700; }
 </style>
