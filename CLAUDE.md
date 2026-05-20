@@ -26,7 +26,7 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 | Route | Page | Notes |
 |---|---|---|
 | `/` | `HomePage.vue` | 2열 상품 그리드, 검색바 탭 시 `/search`로 이동 |
-| `/search` | `SearchPage.vue` | 최근 검색어, 인기 검색어, 카테고리, 검색 결과 |
+| `/search` | `SearchPage.vue` | 최근 검색어(localStorage 유지), 인기 검색어, 카테고리 필터, 텍스트 검색 결과 |
 | `/favorites` | `FavoritesPage.vue` | 찜 목록 2열 그리드, 빈 상태 UI 포함 |
 | `/my` | `MyPage.vue` | 프로필, 통계 카드, 메뉴 섹션, 로그인 다이얼로그 |
 | `/product/:id` | `ProductDetailPage.vue` | 히어로 이미지, 가격 정보, 하단 고정 액션바, 라우트 파라미터로 상품 조회 |
@@ -76,3 +76,10 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 - `usePurchasesStore().history`를 순서대로 렌더링 (최신순, `unshift`로 추가됨)
 - 상단 요약 카드: 총 구매 건수 + `totalSavings()` 누적 절약 금액
 - 내역 없을 때 빈 상태 UI 표시
+
+**SearchPage.vue**
+- 최근 검색어: `localStorage` (`jupjup_recent_searches` 키)에 저장/불러오기, 최대 10개
+- 텍스트 검색: `p.name`, `p.storeName` 대상, 대소문자 무관 (`toLowerCase`)
+- 카테고리 필터: `cat.key` 기반으로 `p.category`와 매칭 — `cat.label`(한글)로 비교하면 안 됨
+- 텍스트 + 카테고리 동시 필터링 가능. `isSearching = !!query || !!selectedCategory`로 결과 화면 전환
+- 카테고리 재클릭 시 토글 해제. 활성 카테고리는 결과 상단에 칩으로 표시
