@@ -25,7 +25,7 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 
 | Route | Page | Notes |
 |---|---|---|
-| `/` | `HomePage.vue` | 2열 상품 그리드, 검색바 탭 시 `/search`로 이동 |
+| `/` | `HomePage.vue` | 카테고리·편의점 브랜드 필터 칩 + 2열 상품 그리드, 검색바 탭 시 `/search`로 이동 |
 | `/search` | `SearchPage.vue` | 최근 검색어(localStorage 유지), 인기 검색어, 카테고리 필터, 텍스트 검색 결과 |
 | `/favorites` | `FavoritesPage.vue` | 찜 목록 2열 그리드, 빈 상태 UI 포함 |
 | `/my` | `MyPage.vue` | 프로필, 통계 카드, 메뉴 섹션, 로그인 다이얼로그 |
@@ -59,6 +59,7 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 - 헤더: 빨간 그라디언트 (`#FF4757 → #FF6B6B`), 브랜드명 + "마감 할인 특가" 태그라인
 - 탭바: `q-route-tab` 사용 — `v-model` / watcher 불필요, 라우트 기반 자동 활성화
 - 탭바: `inactive-color="grey-5"`, `align="justify"` 필수 (없으면 비활성 탭 안 보임)
+- 탭바 색상: `:deep(.q-tab:not(.q-tab--active))` CSS로 명시 강제 (`inactive-color` prop만으로는 환경에 따라 미적용)
 - 홈 탭에 `exact` 속성 필수 — 없으면 모든 경로에서 홈 탭이 활성으로 표시됨
 - `q-tab` + `to` + `v-model` 조합은 라우팅 충돌 발생 — 반드시 `q-route-tab` 사용
 
@@ -81,6 +82,12 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 - `usePurchasesStore().history`를 순서대로 렌더링 (최신순, `unshift`로 추가됨)
 - 상단 요약 카드: 총 구매 건수 + `totalSavings()` 누적 절약 금액
 - 내역 없을 때 빈 상태 UI 표시
+
+**HomePage.vue**
+- 카테고리 필터: `selectedCategory` ref, `'all'`이면 전체. `p.category`와 `cat.key`(영어)로 매칭
+- 편의점 필터: `selectedStore` ref, `p.storeId`(`'store1'`=CU, `'store2'`=GS25, `'store3'`=세븐일레븐)와 매칭
+- 두 필터 AND 조건으로 `filteredProducts` computed. 결과 0개 시 빈 상태 + 필터 초기화 버튼
+- 필터 행은 가로 스크롤 (`overflow-x: auto`, 스크롤바 숨김)
 
 **SearchPage.vue**
 - 최근 검색어: `localStorage` (`jupjup_recent_searches` 키)에 저장/불러오기, 최대 10개
