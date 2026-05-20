@@ -76,6 +76,15 @@
 
 .footer-tabs {
   height: 60px;
+
+  :deep(.q-tab:not(.q-tab--active)) {
+    color: #9E9E9E;
+    opacity: 1;
+  }
+
+  :deep(.q-tab--active) {
+    color: #FF4757;
+  }
 }
 
 .footer-tab {
