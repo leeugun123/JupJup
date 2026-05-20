@@ -76,6 +76,7 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 - 구매 플로우: 구매하기 버튼 → 확인 바텀시트 → 구매 완료 다이얼로그(코드 + 바코드) → 홈으로 이동
 - 구매 완료 시 `usePurchasesStore().add(product)` 호출
 - 편의점 정보 카드: `storeConfig[product.storeId]`로 브랜드 컬러 좌측 보더 + 아이콘 색상 적용 (`.store-info-card`)
+- "이 편의점의 다른 특가" 섹션: `relatedProducts` computed — 같은 `storeId`이고 현재 상품 제외, 최대 8개. 가로 스크롤(`.related-scroll`, `flex: 0 0 155px`). 카드 클릭 시 `router.push('/product/:id')`로 이동
 
 **MyPage.vue**
 
@@ -101,6 +102,7 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 - "⚡ 마감 임박" 섹션: `daysLeftFor()` 함수로 0~2일 남은 상품만 가로 스크롤(`.urgent-scroll`, `flex: 0 0 160px`)로 표시
 - 두 필터 AND 조건으로 `filteredProducts` computed. 결과 0개 시 빈 상태 + 필터 초기화 버튼
 - 필터 행은 가로 스크롤 (`overflow-x: auto`, 스크롤바 숨김)
+- 정렬: `sortBy` ref + `sortOptions` (기본순/할인율순/마감임박순/낮은가격순/높은가격순). `sortedProducts` computed가 `filteredProducts`를 정렬해 그리드에 공급. 정렬 버튼은 `q-btn` + `q-menu` 패턴 (섹션 헤더 우측)
 
 **SearchPage.vue**
 
@@ -109,3 +111,4 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 - 카테고리 필터: `cat.key` 기반으로 `p.category`와 매칭 — `cat.label`(한글)로 비교하면 안 됨
 - 텍스트 + 카테고리 동시 필터링 가능. `isSearching = !!query || !!selectedCategory`로 결과 화면 전환
 - 카테고리 재클릭 시 토글 해제. 활성 카테고리는 결과 상단에 칩으로 표시
+- 정렬: HomePage와 동일한 `sortBy`/`sortOptions`/`sortedProducts` 패턴. 정렬 버튼은 결과 수 표시 행(`result-count-row`) 우측
