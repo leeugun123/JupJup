@@ -32,12 +32,11 @@
   </q-layout>
 </template>
 
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <style scoped lang="scss">
 .app-header {
-  background: linear-gradient(135deg, #FF4757 0%, #FF6B6B 100%);
+  background: linear-gradient(135deg, #ff4757 0%, #ff6b6b 100%);
   box-shadow: 0 2px 12px rgba(255, 71, 87, 0.25);
 }
 
@@ -71,19 +70,21 @@
 
 .app-footer {
   background: white;
-  box-shadow: 0 -1px 0 #F0F0F0, 0 -4px 16px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 -1px 0 #f0f0f0,
+    0 -4px 16px rgba(0, 0, 0, 0.05);
 }
 
 .footer-tabs {
   height: 60px;
 
   :deep(.q-tab:not(.q-tab--active)) {
-    color: #9E9E9E;
+    color: #9e9e9e;
     opacity: 1;
   }
 
   :deep(.q-tab--active) {
-    color: #FF4757;
+    color: #ff4757;
   }
 }
 

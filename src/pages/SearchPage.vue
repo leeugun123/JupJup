@@ -5,7 +5,9 @@
       <q-input
         ref="inputRef"
         v-model="query"
-        outlined dense rounded
+        outlined
+        dense
+        rounded
         placeholder="상품명, 편의점 검색"
         bg-color="white"
         class="search-input"
@@ -15,8 +17,14 @@
           <q-icon name="search" color="grey-5" size="18px" />
         </template>
         <template #append>
-          <q-icon v-if="query" name="close" color="grey-5" size="16px"
-                  class="cursor-pointer" @click="query = ''" />
+          <q-icon
+            v-if="query"
+            name="close"
+            color="grey-5"
+            size="16px"
+            class="cursor-pointer"
+            @click="query = ''"
+          />
         </template>
       </q-input>
     </div>
@@ -31,14 +39,20 @@
         </div>
         <div class="chips-row">
           <div
-            v-for="(keyword, i) in recentSearches" :key="i"
+            v-for="(keyword, i) in recentSearches"
+            :key="i"
             class="recent-chip"
             @click="selectKeyword(keyword)"
           >
             <q-icon name="history" size="13px" color="grey-5" />
             <span>{{ keyword }}</span>
-            <q-icon name="close" size="12px" color="grey-4" class="cursor-pointer"
-                    @click.stop="removeRecent(i)" />
+            <q-icon
+              name="close"
+              size="12px"
+              color="grey-4"
+              class="cursor-pointer"
+              @click.stop="removeRecent(i)"
+            />
           </div>
         </div>
       </section>
@@ -51,7 +65,8 @@
         </div>
         <div class="popular-list">
           <div
-            v-for="(kw, i) in popularKeywords" :key="i"
+            v-for="(kw, i) in popularKeywords"
+            :key="i"
             class="popular-item"
             @click="selectKeyword(kw.word)"
           >
@@ -61,13 +76,25 @@
             <span class="popular-word">{{ kw.word }}</span>
             <div class="popular-trend">
               <q-icon
-                :name="kw.trend === 'up' ? 'arrow_drop_up' : kw.trend === 'down' ? 'arrow_drop_down' : 'remove'"
+                :name="
+                  kw.trend === 'up'
+                    ? 'arrow_drop_up'
+                    : kw.trend === 'down'
+                      ? 'arrow_drop_down'
+                      : 'remove'
+                "
                 :color="kw.trend === 'up' ? 'negative' : kw.trend === 'down' ? 'info' : 'grey-4'"
                 size="18px"
               />
               <span
                 class="trend-label"
-                :class="kw.trend === 'up' ? 'text-negative' : kw.trend === 'down' ? 'text-info' : 'text-grey-4'"
+                :class="
+                  kw.trend === 'up'
+                    ? 'text-negative'
+                    : kw.trend === 'down'
+                      ? 'text-info'
+                      : 'text-grey-4'
+                "
               >
                 {{ kw.trend === 'new' ? 'NEW' : '' }}
               </span>
@@ -81,7 +108,8 @@
         <div class="section-title q-mb-sm">카테고리</div>
         <div class="cat-grid">
           <div
-            v-for="cat in categories" :key="cat.key"
+            v-for="cat in categories"
+            :key="cat.key"
             class="cat-card"
             :class="{ 'cat-card--active': selectedCategory === cat.key }"
             :style="`background: ${cat.color}18; border-color: ${selectedCategory === cat.key ? cat.color : cat.color + '30'}`"
@@ -102,15 +130,19 @@
           <div v-if="selectedCategory" class="active-cat-chip">
             <span class="cat-emoji-sm">{{ activeCategoryEmoji }}</span>
             <span>{{ activeCategoryLabel }}</span>
-            <q-icon name="close" size="13px" color="grey-5" class="cursor-pointer" @click="selectedCategory = ''" />
+            <q-icon
+              name="close"
+              size="13px"
+              color="grey-5"
+              class="cursor-pointer"
+              @click="selectedCategory = ''"
+            />
           </div>
           <span class="text-grey-6 text-caption">
             <template v-if="query">
               <strong class="text-dark">"{{ query }}"</strong> 검색 결과
             </template>
-            <template v-else>
-              카테고리 검색 결과
-            </template>
+            <template v-else> 카테고리 검색 결과 </template>
             {{ filteredProducts.length }}개
           </span>
         </div>
@@ -132,146 +164,149 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import ProductCard from '../components/ProductCard.vue'
-import { mockProducts } from '../data/mockProducts'
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import ProductCard from '../components/ProductCard.vue';
+import { mockProducts } from '../data/mockProducts';
 
-const router = useRouter()
-const inputRef = ref<{ focus: () => void } | null>(null)
-const query = ref('')
-const selectedCategory = ref('')
+const router = useRouter();
+const inputRef = ref<{ focus: () => void } | null>(null);
+const query = ref('');
+const selectedCategory = ref('');
 
 onMounted(() => {
-  setTimeout(() => inputRef.value?.focus(), 100)
-  recentSearches.value = loadRecent()
-})
+  setTimeout(() => inputRef.value?.focus(), 100);
+  recentSearches.value = loadRecent();
+});
 
-const todayDate = new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })
+const todayDate = new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
 
 // ── Recent searches (localStorage) ──────────────
-const RECENT_KEY = 'jupjup_recent_searches'
+const RECENT_KEY = 'jupjup_recent_searches';
 
 function loadRecent(): string[] {
   try {
-    return JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]') as string[]
+    return JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]') as string[];
   } catch {
-    return []
+    return [];
   }
 }
 
 function saveRecent(list: string[]) {
-  localStorage.setItem(RECENT_KEY, JSON.stringify(list))
+  localStorage.setItem(RECENT_KEY, JSON.stringify(list));
 }
 
-const recentSearches = ref<string[]>([])
+const recentSearches = ref<string[]>([]);
 
 function addToRecent(word: string) {
-  const trimmed = word.trim()
-  if (!trimmed) return
-  const updated = [trimmed, ...recentSearches.value.filter((w) => w !== trimmed)].slice(0, 10)
-  recentSearches.value = updated
-  saveRecent(updated)
+  const trimmed = word.trim();
+  if (!trimmed) return;
+  const updated = [trimmed, ...recentSearches.value.filter((w) => w !== trimmed)].slice(0, 10);
+  recentSearches.value = updated;
+  saveRecent(updated);
 }
 
 function removeRecent(i: number) {
-  recentSearches.value.splice(i, 1)
-  saveRecent([...recentSearches.value])
+  recentSearches.value.splice(i, 1);
+  saveRecent([...recentSearches.value]);
 }
 
 function clearRecent() {
-  recentSearches.value = []
-  saveRecent([])
+  recentSearches.value = [];
+  saveRecent([]);
 }
 
 // ── Keyword selection ───────────────────────────
 function selectKeyword(word: string) {
-  query.value = word
-  selectedCategory.value = ''
-  addToRecent(word)
+  query.value = word;
+  selectedCategory.value = '';
+  addToRecent(word);
 }
 
 function onEnter() {
-  if (query.value.trim()) addToRecent(query.value)
+  if (query.value.trim()) addToRecent(query.value);
 }
 
 // ── Category ────────────────────────────────────
 const categories = [
   { key: 'beverage', emoji: '🧃', label: '음료', color: '#2196F3' },
-  { key: 'snack',    emoji: '🍫', label: '간식', color: '#9C27B0' },
-  { key: 'food',     emoji: '🍱', label: '식품', color: '#FF9800' },
-  { key: 'dairy',    emoji: '🥛', label: '유제품', color: '#00BCD4' },
-  { key: 'frozen',   emoji: '❄️', label: '냉동', color: '#3F51B5' },
-  { key: 'instant',  emoji: '🍜', label: '즉석식품', color: '#F44336' },
-]
+  { key: 'snack', emoji: '🍫', label: '간식', color: '#9C27B0' },
+  { key: 'food', emoji: '🍱', label: '식품', color: '#FF9800' },
+  { key: 'dairy', emoji: '🥛', label: '유제품', color: '#00BCD4' },
+  { key: 'frozen', emoji: '❄️', label: '냉동', color: '#3F51B5' },
+  { key: 'instant', emoji: '🍜', label: '즉석식품', color: '#F44336' },
+];
 
 function selectCategory(key: string) {
-  selectedCategory.value = selectedCategory.value === key ? '' : key
-  query.value = ''
+  selectedCategory.value = selectedCategory.value === key ? '' : key;
+  query.value = '';
 }
 
 const activeCategoryEmoji = computed(
-  () => categories.find((c) => c.key === selectedCategory.value)?.emoji ?? ''
-)
+  () => categories.find((c) => c.key === selectedCategory.value)?.emoji ?? '',
+);
 const activeCategoryLabel = computed(
-  () => categories.find((c) => c.key === selectedCategory.value)?.label ?? ''
-)
+  () => categories.find((c) => c.key === selectedCategory.value)?.label ?? '',
+);
 
 // ── Popular keywords ─────────────────────────────
 const popularKeywords = [
-  { word: '김밥',      trend: 'up' },
+  { word: '김밥', trend: 'up' },
   { word: '바나나 우유', trend: 'up' },
-  { word: '샌드위치',   trend: 'new' },
-  { word: '삼각김밥',   trend: 'down' },
-  { word: '컵라면',    trend: 'up' },
+  { word: '샌드위치', trend: 'new' },
+  { word: '삼각김밥', trend: 'down' },
+  { word: '컵라면', trend: 'up' },
   { word: '그릭 요거트', trend: 'up' },
-  { word: '초코파이',   trend: 'down' },
+  { word: '초코파이', trend: 'down' },
   { word: '오렌지 주스', trend: '-' },
-  { word: '크래커',    trend: '-' },
+  { word: '크래커', trend: '-' },
   { word: '아이스크림', trend: 'new' },
-]
+];
 
 // ── Filtering ────────────────────────────────────
-const isSearching = computed(() => !!query.value || !!selectedCategory.value)
+const isSearching = computed(() => !!query.value || !!selectedCategory.value);
 
 const filteredProducts = computed(() => {
-  const q = query.value.toLowerCase()
+  const q = query.value.toLowerCase();
   return mockProducts.filter((p) => {
-    const matchesCategory = !selectedCategory.value || p.category === selectedCategory.value
-    const matchesQuery = !q ||
-      p.name.toLowerCase().includes(q) ||
-      p.storeName.toLowerCase().includes(q)
-    return matchesCategory && matchesQuery
-  })
-})
+    const matchesCategory = !selectedCategory.value || p.category === selectedCategory.value;
+    const matchesQuery =
+      !q || p.name.toLowerCase().includes(q) || p.storeName.toLowerCase().includes(q);
+    return matchesCategory && matchesQuery;
+  });
+});
 
 function goToDetail(id: string) {
-  if (query.value.trim()) addToRecent(query.value)
-  void router.push(`/product/${id}`)
+  if (query.value.trim()) addToRecent(query.value);
+  void router.push(`/product/${id}`);
 }
 </script>
 
 <style scoped lang="scss">
 .search-page {
-  background: #F5F6F8;
+  background: #f5f6f8;
   padding-bottom: 80px;
 }
 
 .search-bar-wrap {
   background: white;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .search-input {
   :deep(.q-field__control) {
-    background: #F5F6F8 !important;
+    background: #f5f6f8 !important;
     border-radius: 12px !important;
     height: 44px;
     border: none !important;
     box-shadow: none;
   }
-  :deep(.q-field__marginal) { height: 44px; }
-  :deep(.q-field__bottom) { display: none; }
+  :deep(.q-field__marginal) {
+    height: 44px;
+  }
+  :deep(.q-field__bottom) {
+    display: none;
+  }
 }
 
 // ── Section Headers ────────────────────────────
@@ -284,7 +319,7 @@ function goToDetail(id: string) {
 .section-title {
   font-size: 15px;
   font-weight: 700;
-  color: #1A1A2E;
+  color: #1a1a2e;
   letter-spacing: -0.3px;
 }
 
@@ -294,7 +329,7 @@ function goToDetail(id: string) {
 
 .clear-btn {
   font-size: 12px;
-  color: #AAAAAA;
+  color: #aaaaaa;
   cursor: pointer;
 }
 
@@ -312,14 +347,16 @@ function goToDetail(id: string) {
   padding: 6px 12px;
   border-radius: 20px;
   background: white;
-  border: 1.5px solid #EEEEEE;
+  border: 1.5px solid #eeeeee;
   font-size: 13px;
   color: #444;
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   transition: background 0.15s;
 
-  &:active { background: #f5f5f5; }
+  &:active {
+    background: #f5f5f5;
+  }
 }
 
 // ── Popular List ───────────────────────────────
@@ -330,7 +367,7 @@ function goToDetail(id: string) {
   background: white;
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
 }
 
 .popular-item {
@@ -339,12 +376,18 @@ function goToDetail(id: string) {
   gap: 10px;
   padding: 13px 14px;
   cursor: pointer;
-  border-bottom: 1px solid #F5F5F5;
+  border-bottom: 1px solid #f5f5f5;
   transition: background 0.15s;
 
-  &:active { background: #FAFAFA; }
-  &:nth-child(odd) { border-right: 1px solid #F5F5F5; }
-  &:nth-last-child(-n+2) { border-bottom: none; }
+  &:active {
+    background: #fafafa;
+  }
+  &:nth-child(odd) {
+    border-right: 1px solid #f5f5f5;
+  }
+  &:nth-last-child(-n + 2) {
+    border-bottom: none;
+  }
 }
 
 .popular-rank {
@@ -353,15 +396,19 @@ function goToDetail(id: string) {
   min-width: 18px;
   letter-spacing: -0.5px;
 
-  &.rank-hot { color: #FF4757; }
-  &.rank-normal { color: #AAAAAA; }
+  &.rank-hot {
+    color: #ff4757;
+  }
+  &.rank-normal {
+    color: #aaaaaa;
+  }
 }
 
 .popular-word {
   flex: 1;
   font-size: 13px;
   font-weight: 500;
-  color: #1A1A2E;
+  color: #1a1a2e;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -396,16 +443,23 @@ function goToDetail(id: string) {
   cursor: pointer;
   transition: transform 0.15s;
 
-  &:active { transform: scale(0.96); }
+  &:active {
+    transform: scale(0.96);
+  }
 
   &--active {
-    box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
     transform: scale(0.97);
   }
 }
 
-.cat-emoji { font-size: 24px; }
-.cat-label { font-size: 12px; font-weight: 700; }
+.cat-emoji {
+  font-size: 24px;
+}
+.cat-label {
+  font-size: 12px;
+  font-weight: 700;
+}
 
 // ── Results ────────────────────────────────────
 .result-meta {
@@ -420,14 +474,16 @@ function goToDetail(id: string) {
   align-items: center;
   gap: 5px;
   background: white;
-  border: 1.5px solid #EEEEEE;
+  border: 1.5px solid #eeeeee;
   border-radius: 20px;
   padding: 5px 10px;
   font-size: 13px;
   font-weight: 600;
   color: #444;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
-.cat-emoji-sm { font-size: 14px; }
+.cat-emoji-sm {
+  font-size: 14px;
+}
 </style>

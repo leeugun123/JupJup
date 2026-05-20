@@ -7,7 +7,9 @@
         {{ daysLeft === 0 ? '오늘 마감' : `D-${daysLeft}` }}
       </div>
       <q-btn
-        flat round dense
+        flat
+        round
+        dense
         :icon="isFav ? 'favorite' : 'favorite_border'"
         :color="isFav ? 'negative' : 'white'"
         class="fav-btn"
@@ -27,24 +29,26 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { Product } from '../types/product'
-import { useFavoritesStore } from '../stores/favorites'
+import { computed } from 'vue';
+import type { Product } from '../types/product';
+import { useFavoritesStore } from '../stores/favorites';
 
-const props = defineProps<{ product: Product }>()
-const emit = defineEmits(['click'])
+const props = defineProps<{ product: Product }>();
+const emit = defineEmits(['click']);
 
-const favStore = useFavoritesStore()
-const isFav = computed(() => favStore.isFavorite(props.product.id))
-function toggleFav() { favStore.toggle(props.product.id) }
+const favStore = useFavoritesStore();
+const isFav = computed(() => favStore.isFavorite(props.product.id));
+function toggleFav() {
+  favStore.toggle(props.product.id);
+}
 
 const daysLeft = computed(() => {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const expiry = new Date(props.product.expiryDate)
-  expiry.setHours(0, 0, 0, 0)
-  return Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-})
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const expiry = new Date(props.product.expiryDate);
+  expiry.setHours(0, 0, 0, 0);
+  return Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+});
 </script>
 
 <style scoped lang="scss">
@@ -53,7 +57,9 @@ const daysLeft = computed(() => {
   overflow: hidden;
   background: white;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
 
   &:active {
     transform: scale(0.97);
@@ -74,7 +80,7 @@ const daysLeft = computed(() => {
   position: absolute;
   top: 8px;
   left: 8px;
-  background: #FF4757;
+  background: #ff4757;
   color: white;
   font-size: 12px;
   font-weight: 800;
@@ -114,7 +120,7 @@ const daysLeft = computed(() => {
 
 .store-name {
   font-size: 11px;
-  color: #AAAAAA;
+  color: #aaaaaa;
   font-weight: 500;
   margin-bottom: 3px;
 }
@@ -122,7 +128,7 @@ const daysLeft = computed(() => {
 .product-name {
   font-size: 14px;
   font-weight: 700;
-  color: #1A1A2E;
+  color: #1a1a2e;
   line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -139,14 +145,14 @@ const daysLeft = computed(() => {
 
 .original-price {
   font-size: 11px;
-  color: #CCCCCC;
+  color: #cccccc;
   text-decoration: line-through;
 }
 
 .discount-price {
   font-size: 16px;
   font-weight: 800;
-  color: #FF4757;
+  color: #ff4757;
   letter-spacing: -0.5px;
 }
 </style>

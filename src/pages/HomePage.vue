@@ -13,7 +13,8 @@
       <!-- 카테고리 -->
       <div class="filter-row">
         <div
-          v-for="cat in categories" :key="cat.key"
+          v-for="cat in categories"
+          :key="cat.key"
           class="filter-chip"
           :class="{ 'filter-chip--active': selectedCategory === cat.key }"
           @click="selectedCategory = cat.key"
@@ -25,7 +26,8 @@
       <!-- 편의점 브랜드 -->
       <div class="filter-row">
         <div
-          v-for="store in stores" :key="store.key"
+          v-for="store in stores"
+          :key="store.key"
           class="filter-chip filter-chip--store"
           :class="{ 'filter-chip--active': selectedStore === store.key }"
           @click="selectedStore = store.key"
@@ -53,61 +55,69 @@
         <q-icon name="search_off" size="56px" color="grey-3" />
         <div class="empty-title q-mt-md">해당 상품이 없어요</div>
         <div class="empty-sub q-mt-xs">다른 카테고리를 선택해보세요</div>
-        <q-btn flat label="전체 보기" color="primary" class="q-mt-sm"
-               @click="selectedCategory = 'all'; selectedStore = 'all'" />
+        <q-btn
+          flat
+          label="전체 보기"
+          color="primary"
+          class="q-mt-sm"
+          @click="
+            selectedCategory = 'all';
+            selectedStore = 'all';
+          "
+        />
       </div>
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import ProductCard from '../components/ProductCard.vue'
-import { mockProducts } from '../data/mockProducts'
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import ProductCard from '../components/ProductCard.vue';
+import { mockProducts } from '../data/mockProducts';
 
-const router = useRouter()
+const router = useRouter();
 
-const selectedCategory = ref('all')
-const selectedStore = ref('all')
+const selectedCategory = ref('all');
+const selectedStore = ref('all');
 
 const categories = [
-  { key: 'all',      emoji: '🏷️', label: '전체' },
+  { key: 'all', emoji: '🏷️', label: '전체' },
   { key: 'beverage', emoji: '🧃', label: '음료' },
-  { key: 'snack',    emoji: '🍫', label: '간식' },
-  { key: 'food',     emoji: '🍱', label: '식품' },
-  { key: 'dairy',    emoji: '🥛', label: '유제품' },
-  { key: 'frozen',   emoji: '❄️', label: '냉동' },
-  { key: 'instant',  emoji: '🍜', label: '즉석식품' },
-]
+  { key: 'snack', emoji: '🍫', label: '간식' },
+  { key: 'food', emoji: '🍱', label: '식품' },
+  { key: 'dairy', emoji: '🥛', label: '유제품' },
+  { key: 'frozen', emoji: '❄️', label: '냉동' },
+  { key: 'instant', emoji: '🍜', label: '즉석식품' },
+];
 
 const stores = [
-  { key: 'all',    label: '전체' },
+  { key: 'all', label: '전체' },
   { key: 'store1', label: 'CU' },
   { key: 'store2', label: 'GS25' },
   { key: 'store3', label: '세븐일레븐' },
-]
+];
 
 const filteredProducts = computed(() =>
   mockProducts.filter((p) => {
-    const matchCat   = selectedCategory.value === 'all' || p.category === selectedCategory.value
-    const matchStore = selectedStore.value === 'all'    || p.storeId  === selectedStore.value
-    return matchCat && matchStore
-  })
-)
+    const matchCat = selectedCategory.value === 'all' || p.category === selectedCategory.value;
+    const matchStore = selectedStore.value === 'all' || p.storeId === selectedStore.value;
+    return matchCat && matchStore;
+  }),
+);
 
 function goToDetail(id: string) {
-  void router.push(`/product/${id}`)
+  void router.push(`/product/${id}`);
 }
 
 function goToSearch() {
-  void router.push('/search')
+  void router.push('/search');
 }
 </script>
 
 <style scoped lang="scss">
 .home-page {
-  background: #F7F8FA;
+  background: #f7f8fa;
   min-height: 100vh;
 }
 
@@ -127,7 +137,7 @@ function goToSearch() {
 
 .search-placeholder {
   font-size: 14px;
-  color: #BBBBBB;
+  color: #bbbbbb;
 }
 
 // ── Filters ────────────────────────────────────
@@ -143,7 +153,9 @@ function goToSearch() {
   padding: 0 16px;
   overflow-x: auto;
   scrollbar-width: none;
-  &::-webkit-scrollbar { display: none; }
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .filter-chip {
@@ -153,7 +165,7 @@ function goToSearch() {
   padding: 6px 12px;
   border-radius: 20px;
   background: white;
-  border: 1.5px solid #EEEEEE;
+  border: 1.5px solid #eeeeee;
   font-size: 13px;
   font-weight: 600;
   color: #666;
@@ -162,11 +174,13 @@ function goToSearch() {
   transition: all 0.15s;
   flex-shrink: 0;
 
-  &:active { transform: scale(0.96); }
+  &:active {
+    transform: scale(0.96);
+  }
 
   &--active {
-    background: #FF4757;
-    border-color: #FF4757;
+    background: #ff4757;
+    border-color: #ff4757;
     color: white;
   }
 
@@ -191,7 +205,7 @@ function goToSearch() {
 .section-title {
   font-size: 18px;
   font-weight: 800;
-  color: #1A1A2E;
+  color: #1a1a2e;
   letter-spacing: -0.5px;
 }
 
@@ -212,6 +226,6 @@ function goToSearch() {
 
 .empty-sub {
   font-size: 13px;
-  color: #AAAAAA;
+  color: #aaaaaa;
 }
 </style>

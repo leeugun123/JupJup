@@ -13,19 +13,29 @@
         </div>
         <div class="summary-divider" />
         <div class="summary-item">
-          <div class="summary-value text-positive">{{ purchasesStore.totalSavings().toLocaleString() }}원</div>
+          <div class="summary-value text-positive">
+            {{ purchasesStore.totalSavings().toLocaleString() }}원
+          </div>
           <div class="summary-label">총 절약</div>
         </div>
       </div>
 
       <div v-for="purchase in purchasesStore.history" :key="purchase.id" class="history-card">
         <div class="history-card-top">
-          <q-img :src="purchase.product.image" width="64px" height="64px" fit="cover" class="history-img" />
+          <q-img
+            :src="purchase.product.image"
+            width="64px"
+            height="64px"
+            fit="cover"
+            class="history-img"
+          />
           <div class="history-info">
             <div class="history-store">{{ purchase.product.storeName }}</div>
             <div class="history-name">{{ purchase.product.name }}</div>
             <div class="history-price-row">
-              <span class="history-price">{{ purchase.product.discountPrice.toLocaleString() }}원</span>
+              <span class="history-price"
+                >{{ purchase.product.discountPrice.toLocaleString() }}원</span
+              >
               <span class="history-saving">{{ purchase.savings.toLocaleString() }}원 절약</span>
             </div>
           </div>
@@ -44,18 +54,15 @@
       <q-icon name="receipt_long" size="64px" color="grey-3" />
       <div class="empty-title q-mt-md">이용 내역이 없어요</div>
       <div class="empty-sub q-mt-xs">마감 할인 상품을 구매해보세요!</div>
-      <q-btn
-        unelevated color="primary" rounded label="특가 상품 보러가기"
-        class="q-mt-lg" to="/"
-      />
+      <q-btn unelevated color="primary" rounded label="특가 상품 보러가기" class="q-mt-lg" to="/" />
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { usePurchasesStore } from '../stores/purchases'
+import { usePurchasesStore } from '../stores/purchases';
 
-const purchasesStore = usePurchasesStore()
+const purchasesStore = usePurchasesStore();
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('ko-KR', {
@@ -63,13 +70,13 @@ function formatDate(iso: string) {
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  })
+  });
 }
 </script>
 
 <style scoped lang="scss">
 .history-page {
-  background: #F7F8FA;
+  background: #f7f8fa;
   min-height: 100vh;
 }
 
@@ -82,7 +89,7 @@ function formatDate(iso: string) {
 .history-title {
   font-size: 22px;
   font-weight: 800;
-  color: #1A1A2E;
+  color: #1a1a2e;
   letter-spacing: -0.5px;
 }
 
@@ -116,14 +123,14 @@ function formatDate(iso: string) {
 
 .summary-label {
   font-size: 11px;
-  color: #AAAAAA;
+  color: #aaaaaa;
   font-weight: 500;
 }
 
 .summary-divider {
   width: 1px;
   height: 32px;
-  background: #F0F0F0;
+  background: #f0f0f0;
 }
 
 // ── History Card ──────────────────────────────
@@ -154,14 +161,14 @@ function formatDate(iso: string) {
 
 .history-store {
   font-size: 11px;
-  color: #AAAAAA;
+  color: #aaaaaa;
   margin-bottom: 2px;
 }
 
 .history-name {
   font-size: 14px;
   font-weight: 700;
-  color: #1A1A2E;
+  color: #1a1a2e;
   margin-bottom: 6px;
   white-space: nowrap;
   overflow: hidden;
@@ -177,15 +184,15 @@ function formatDate(iso: string) {
 .history-price {
   font-size: 15px;
   font-weight: 800;
-  color: #FF4757;
+  color: #ff4757;
   letter-spacing: -0.3px;
 }
 
 .history-saving {
   font-size: 11px;
   font-weight: 600;
-  color: #2ED573;
-  background: #F0FFF4;
+  color: #2ed573;
+  background: #f0fff4;
   padding: 2px 6px;
   border-radius: 6px;
 }
@@ -195,8 +202,8 @@ function formatDate(iso: string) {
   justify-content: space-between;
   align-items: center;
   padding: 10px 14px;
-  border-top: 1px solid #F5F5F5;
-  background: #FAFAFA;
+  border-top: 1px solid #f5f5f5;
+  background: #fafafa;
 }
 
 .history-code-wrap {
@@ -214,7 +221,7 @@ function formatDate(iso: string) {
 
 .history-date {
   font-size: 11px;
-  color: #AAAAAA;
+  color: #aaaaaa;
 }
 
 // ── Empty State ───────────────────────────────
@@ -232,6 +239,6 @@ function formatDate(iso: string) {
 
 .empty-sub {
   font-size: 13px;
-  color: #AAAAAA;
+  color: #aaaaaa;
 }
 </style>

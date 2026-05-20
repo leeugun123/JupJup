@@ -1,10 +1,10 @@
-import { createPinia } from 'pinia'
-import { boot } from 'quasar/wrappers'
+import { createPinia } from 'pinia';
+import { boot } from 'quasar/wrappers';
 
-const pinia = createPinia()
+const pinia = createPinia();
 
 export default boot(({ app }) => {
-  app.use(pinia)
-})
+  app.use(pinia);
+});
 
-export { pinia }
+export { pinia };

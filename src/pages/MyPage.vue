@@ -7,8 +7,11 @@
         <div class="profile-row">
           <div class="avatar-wrap">
             <q-icon name="person" size="32px" color="white" />
-            <div v-if="authStore.isLoggedIn" class="provider-badge"
-                 :class="authStore.user!.provider === 'kakao' ? 'badge-kakao' : 'badge-naver'">
+            <div
+              v-if="authStore.isLoggedIn"
+              class="provider-badge"
+              :class="authStore.user!.provider === 'kakao' ? 'badge-kakao' : 'badge-naver'"
+            >
               {{ authStore.user!.provider === 'kakao' ? 'K' : 'N' }}
             </div>
           </div>
@@ -17,12 +20,21 @@
               {{ authStore.isLoggedIn ? authStore.user!.name : '게스트 사용자' }}
             </div>
             <div class="profile-sub">
-              {{ authStore.isLoggedIn ? authStore.user!.email : '로그인하고 더 많은 혜택을 받으세요' }}
+              {{
+                authStore.isLoggedIn ? authStore.user!.email : '로그인하고 더 많은 혜택을 받으세요'
+              }}
             </div>
           </div>
-          <q-btn v-if="!authStore.isLoggedIn"
-                 flat dense round icon="chevron_right" color="white" size="12px"
-                 @click="showLoginDialog = true" />
+          <q-btn
+            v-if="!authStore.isLoggedIn"
+            flat
+            dense
+            round
+            icon="chevron_right"
+            color="white"
+            size="12px"
+            @click="showLoginDialog = true"
+          />
         </div>
       </div>
 
@@ -52,29 +64,39 @@
         <div class="menu-section-title">내 활동</div>
         <div class="menu-card">
           <div class="menu-item" @click="$router.push('/favorites')">
-            <div class="menu-icon-wrap" style="background:#FFF0F1">
+            <div class="menu-icon-wrap" style="background: #fff0f1">
               <q-icon name="favorite" color="negative" size="18px" />
             </div>
             <span class="menu-label">찜 목록</span>
             <div class="menu-right">
-              <q-badge v-if="favStore.ids.length > 0" color="negative" :label="favStore.ids.length" rounded />
+              <q-badge
+                v-if="favStore.ids.length > 0"
+                color="negative"
+                :label="favStore.ids.length"
+                rounded
+              />
               <q-icon name="chevron_right" color="grey-4" size="18px" />
             </div>
           </div>
           <q-separator inset />
           <div class="menu-item" @click="$router.push('/history')">
-            <div class="menu-icon-wrap" style="background:#F0F4FF">
+            <div class="menu-icon-wrap" style="background: #f0f4ff">
               <q-icon name="receipt_long" color="info" size="18px" />
             </div>
             <span class="menu-label">이용 내역</span>
             <div class="menu-right">
-              <q-badge v-if="purchasesStore.history.length > 0" color="info" :label="purchasesStore.history.length" rounded />
+              <q-badge
+                v-if="purchasesStore.history.length > 0"
+                color="info"
+                :label="purchasesStore.history.length"
+                rounded
+              />
               <q-icon name="chevron_right" color="grey-4" size="18px" />
             </div>
           </div>
           <q-separator inset />
           <div class="menu-item">
-            <div class="menu-icon-wrap" style="background:#FFF8E7">
+            <div class="menu-icon-wrap" style="background: #fff8e7">
               <q-icon name="star" color="warning" size="18px" />
             </div>
             <span class="menu-label">리뷰 내역</span>
@@ -88,7 +110,7 @@
         <div class="menu-section-title">편의점</div>
         <div class="menu-card">
           <div class="menu-item">
-            <div class="menu-icon-wrap" style="background:#F0FFF4">
+            <div class="menu-icon-wrap" style="background: #f0fff4">
               <q-icon name="store" color="positive" size="18px" />
             </div>
             <span class="menu-label">관심 편의점</span>
@@ -96,7 +118,7 @@
           </div>
           <q-separator inset />
           <div class="menu-item">
-            <div class="menu-icon-wrap" style="background:#F3F0FF">
+            <div class="menu-icon-wrap" style="background: #f3f0ff">
               <q-icon name="notifications" color="accent" size="18px" />
             </div>
             <span class="menu-label">알림 설정</span>
@@ -107,7 +129,7 @@
           </div>
           <q-separator inset />
           <div class="menu-item">
-            <div class="menu-icon-wrap" style="background:#FFF0F8">
+            <div class="menu-icon-wrap" style="background: #fff0f8">
               <q-icon name="location_on" color="pink" size="18px" />
             </div>
             <span class="menu-label">내 위치 설정</span>
@@ -124,7 +146,7 @@
         <div class="menu-section-title">앱 정보</div>
         <div class="menu-card">
           <div class="menu-item">
-            <div class="menu-icon-wrap" style="background:#FFF8F0">
+            <div class="menu-icon-wrap" style="background: #fff8f0">
               <q-icon name="campaign" color="secondary" size="18px" />
             </div>
             <span class="menu-label">공지사항</span>
@@ -132,7 +154,7 @@
           </div>
           <q-separator inset />
           <div class="menu-item">
-            <div class="menu-icon-wrap" style="background:#F0FAFF">
+            <div class="menu-icon-wrap" style="background: #f0faff">
               <q-icon name="headset_mic" color="info" size="18px" />
             </div>
             <span class="menu-label">고객센터</span>
@@ -140,7 +162,7 @@
           </div>
           <q-separator inset />
           <div class="menu-item">
-            <div class="menu-icon-wrap" style="background:#F5F5F5">
+            <div class="menu-icon-wrap" style="background: #f5f5f5">
               <q-icon name="info_outline" color="grey-6" size="18px" />
             </div>
             <span class="menu-label">앱 버전</span>
@@ -154,10 +176,10 @@
         <div class="menu-section-title">계정</div>
         <div class="menu-card">
           <div class="menu-item" @click="showLogoutDialog = true">
-            <div class="menu-icon-wrap" style="background:#FFF5F5">
+            <div class="menu-icon-wrap" style="background: #fff5f5">
               <q-icon name="logout" color="negative" size="18px" />
             </div>
-            <span class="menu-label" style="color:#FF4757">로그아웃</span>
+            <span class="menu-label" style="color: #ff4757">로그아웃</span>
             <q-icon name="chevron_right" color="grey-4" size="18px" />
           </div>
         </div>
@@ -182,8 +204,21 @@
           <div class="logout-sub q-mt-sm">정말 로그아웃 하시겠어요?</div>
         </q-card-section>
         <q-card-section class="logout-actions q-px-lg q-pb-xl">
-          <q-btn flat label="취소" color="grey-5" class="logout-cancel-btn" @click="showLogoutDialog = false" />
-          <q-btn unelevated label="로그아웃" color="negative" rounded class="logout-confirm-btn" @click="doLogout" />
+          <q-btn
+            flat
+            label="취소"
+            color="grey-5"
+            class="logout-cancel-btn"
+            @click="showLogoutDialog = false"
+          />
+          <q-btn
+            unelevated
+            label="로그아웃"
+            color="negative"
+            rounded
+            class="logout-confirm-btn"
+            @click="doLogout"
+          />
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -196,18 +231,8 @@
           <div class="dialog-sub q-mt-sm">로그인하고 더 많은 혜택을 누리세요</div>
         </q-card-section>
         <q-card-section class="dialog-actions q-px-lg q-pb-xl">
-          <q-btn
-            label="카카오로 시작하기"
-            unelevated
-            class="kakao-btn"
-            @click="doLogin('kakao')"
-          />
-          <q-btn
-            label="네이버로 시작하기"
-            unelevated
-            class="naver-btn"
-            @click="doLogin('naver')"
-          />
+          <q-btn label="카카오로 시작하기" unelevated class="kakao-btn" @click="doLogin('kakao')" />
+          <q-btn label="네이버로 시작하기" unelevated class="naver-btn" @click="doLogin('naver')" />
           <q-btn flat label="닫기" color="grey-5" @click="showLoginDialog = false" />
         </q-card-section>
       </q-card>
@@ -216,35 +241,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useFavoritesStore } from '../stores/favorites'
-import { usePurchasesStore } from '../stores/purchases'
-import { useAuthStore } from '../stores/auth'
+import { ref, computed, onMounted } from 'vue';
+import { useFavoritesStore } from '../stores/favorites';
+import { usePurchasesStore } from '../stores/purchases';
+import { useAuthStore } from '../stores/auth';
 
-const favStore = useFavoritesStore()
-const purchasesStore = usePurchasesStore()
-const authStore = useAuthStore()
-const totalSavings = computed(() => purchasesStore.totalSavings())
-const notifOn = ref(true)
-const showLoginDialog = ref(false)
-const showLogoutDialog = ref(false)
+const favStore = useFavoritesStore();
+const purchasesStore = usePurchasesStore();
+const authStore = useAuthStore();
+const totalSavings = computed(() => purchasesStore.totalSavings());
+const notifOn = ref(true);
+const showLoginDialog = ref(false);
+const showLogoutDialog = ref(false);
 
-onMounted(() => authStore.init())
+onMounted(() => authStore.init());
 
 function doLogin(provider: 'kakao' | 'naver') {
-  authStore.login(provider)
-  showLoginDialog.value = false
+  authStore.login(provider);
+  showLoginDialog.value = false;
 }
 
 function doLogout() {
-  authStore.logout()
-  showLogoutDialog.value = false
+  authStore.logout();
+  showLogoutDialog.value = false;
 }
 </script>
 
 <style scoped lang="scss">
 .my-page {
-  background: #F7F8FA;
+  background: #f7f8fa;
   padding-bottom: 80px;
 }
 
@@ -260,7 +285,7 @@ function doLogout() {
   left: 0;
   right: 0;
   height: 170px;
-  background: linear-gradient(135deg, #FF4757 0%, #FF6B81 100%);
+  background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
 }
 
 .profile-content {
@@ -301,8 +326,14 @@ function doLogout() {
   font-weight: 900;
   border: 2px solid white;
 
-  &.badge-kakao { background: #FEE500; color: #3C1E1E; }
-  &.badge-naver { background: #03C75A; color: white; }
+  &.badge-kakao {
+    background: #fee500;
+    color: #3c1e1e;
+  }
+  &.badge-naver {
+    background: #03c75a;
+    color: white;
+  }
 }
 
 .profile-info {
@@ -352,14 +383,14 @@ function doLogout() {
 
 .stat-label {
   font-size: 11px;
-  color: #AAAAAA;
+  color: #aaaaaa;
   font-weight: 500;
 }
 
 .stat-divider {
   width: 1px;
   height: 32px;
-  background: #F0F0F0;
+  background: #f0f0f0;
 }
 
 // ── Menu ──────────────────────────────────────
@@ -374,7 +405,7 @@ function doLogout() {
 .menu-section-title {
   font-size: 12px;
   font-weight: 700;
-  color: #AAAAAA;
+  color: #aaaaaa;
   letter-spacing: 0.5px;
   text-transform: uppercase;
   margin-bottom: 8px;
@@ -396,7 +427,9 @@ function doLogout() {
   cursor: pointer;
   transition: background 0.15s;
 
-  &:active { background: #FAFAFA; }
+  &:active {
+    background: #fafafa;
+  }
 }
 
 .menu-icon-wrap {
@@ -413,7 +446,7 @@ function doLogout() {
   flex: 1;
   font-size: 14px;
   font-weight: 500;
-  color: #1A1A2E;
+  color: #1a1a2e;
   letter-spacing: -0.2px;
 }
 
@@ -425,7 +458,7 @@ function doLogout() {
 
 .menu-value {
   font-size: 12px;
-  color: #AAAAAA;
+  color: #aaaaaa;
 }
 
 // ── Login Banner ──────────────────────────────
@@ -442,18 +475,20 @@ function doLogout() {
   border: 1.5px solid rgba(255, 71, 87, 0.15);
   transition: border-color 0.2s;
 
-  &:active { border-color: rgba(255, 71, 87, 0.4); }
+  &:active {
+    border-color: rgba(255, 71, 87, 0.4);
+  }
 }
 
 .login-banner-title {
   font-size: 14px;
   font-weight: 700;
-  color: #1A1A2E;
+  color: #1a1a2e;
 }
 
 .login-banner-sub {
   font-size: 12px;
-  color: #AAAAAA;
+  color: #aaaaaa;
   margin-top: 2px;
 }
 
@@ -473,13 +508,13 @@ function doLogout() {
 .dialog-logo {
   font-size: 26px;
   font-weight: 900;
-  color: #FF4757;
+  color: #ff4757;
   letter-spacing: -1px;
 }
 
 .dialog-sub {
   font-size: 14px;
-  color: #AAAAAA;
+  color: #aaaaaa;
 }
 
 .dialog-actions {
@@ -489,8 +524,8 @@ function doLogout() {
 }
 
 .kakao-btn {
-  background: #FEE500;
-  color: #3C1E1E;
+  background: #fee500;
+  color: #3c1e1e;
   border-radius: 12px;
   height: 48px;
   font-weight: 700;
@@ -498,7 +533,7 @@ function doLogout() {
 }
 
 .naver-btn {
-  background: #03C75A;
+  background: #03c75a;
   color: white;
   border-radius: 12px;
   height: 48px;
@@ -515,13 +550,13 @@ function doLogout() {
 .logout-title {
   font-size: 20px;
   font-weight: 800;
-  color: #1A1A2E;
+  color: #1a1a2e;
   letter-spacing: -0.5px;
 }
 
 .logout-sub {
   font-size: 14px;
-  color: #AAAAAA;
+  color: #aaaaaa;
 }
 
 .logout-actions {
@@ -529,6 +564,13 @@ function doLogout() {
   gap: 10px;
 }
 
-.logout-cancel-btn { flex: 1; height: 44px; }
-.logout-confirm-btn { flex: 2; height: 44px; font-weight: 700; }
+.logout-cancel-btn {
+  flex: 1;
+  height: 44px;
+}
+.logout-confirm-btn {
+  flex: 2;
+  height: 44px;
+  font-weight: 700;
+}
 </style>
