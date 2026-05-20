@@ -34,7 +34,9 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 
 **Shared types:** `src/types/product.ts` exports the `Product` interface. Import from here — not from individual `.vue` files.
 
-**Mock data:** `src/data/mockProducts.ts`에서 중앙 관리. `HomePage`, `SearchPage`, `ProductDetailPage`, `FavoritesPage`가 공통으로 import해서 사용. API 레이어 없음.
+**Mock data:** `src/data/mockProducts.ts`에서 중앙 관리 (37개). `HomePage`, `SearchPage`, `ProductDetailPage`, `FavoritesPage`가 공통으로 import해서 사용. API 레이어 없음.
+
+**Store brand config:** `src/data/stores.ts` — 편의점 브랜드 색상 중앙 관리. `storeConfig` Record로 `storeId`를 key로 `{ label, color, bgColor }` 반환. `ProductCard`, `ProductDetailPage`에서 import해 브랜드 색상 적용.
 
 **State management:** Pinia 사용. `src/boot/pinia.ts`에서 초기화 후 `quasar.config.ts` boot 배열에 등록. 새 스토어 추가 시 `src/stores/` 디렉토리에 생성하면 되고, boot 파일 재등록은 불필요.
 
@@ -56,10 +58,11 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 - 유통기한 D-2 이하이면 우하단에 마감 임박 배지 자동 표시 (`daysLeft` computed)
 - 우상단 하트 버튼 — `useFavoritesStore()`로 찜 토글, `@click.stop`으로 카드 클릭 이벤트와 분리
 - `@click` emit으로 클릭 이벤트를 부모에 전달
+- 스토어명 표시: `storeConfig[product.storeId]`로 브랜드 컬러 배지(CU/GS25/세븐일레븐) + 지점명 분리 (`.store-brand-badge` + `.store-branch`)
 
 **MainLayout.vue**
 
-- 헤더: 빨간 그라디언트 (`#FF4757 → #FF6B6B`), 브랜드명 + "마감 할인 특가" 태그라인
+- 헤더: 빨간 그라디언트 (`#FF4757 → #FF6B6B`), 브랜드명 + "마감 할인 특가" 태그라인 + 위치 칩(강남구) + 알림 벨
 - 탭바: `q-route-tab` 사용 — `v-model` / watcher 불필요, 라우트 기반 자동 활성화
 - 탭바: `inactive-color="grey-5"`, `align="justify"` 필수 (없으면 비활성 탭 안 보임)
 - 탭바 색상: `:deep(.q-tab:not(.q-tab--active))` CSS로 명시 강제 (`inactive-color` prop만으로는 환경에 따라 미적용)
@@ -72,6 +75,7 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 - 하단 액션바: `position: fixed; bottom: 60px` — 탭바(60px) 위에 위치해야 함. `bottom: 0`으로 설정하면 탭바에 가려짐
 - 구매 플로우: 구매하기 버튼 → 확인 바텀시트 → 구매 완료 다이얼로그(코드 + 바코드) → 홈으로 이동
 - 구매 완료 시 `usePurchasesStore().add(product)` 호출
+- 편의점 정보 카드: `storeConfig[product.storeId]`로 브랜드 컬러 좌측 보더 + 아이콘 색상 적용 (`.store-info-card`)
 
 **MyPage.vue**
 
@@ -91,8 +95,10 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 
 **HomePage.vue**
 
+- 상단 배너: `q-carousel` 3장 자동 재생(3.5초), 커스텀 dot indicator (`.banner-dots`)
 - 카테고리 필터: `selectedCategory` ref, `'all'`이면 전체. `p.category`와 `cat.key`(영어)로 매칭
-- 편의점 필터: `selectedStore` ref, `p.storeId`(`'store1'`=CU, `'store2'`=GS25, `'store3'`=세븐일레븐)와 매칭
+- 편의점 필터: `selectedStore` ref, `p.storeId`(`'store1'`=CU, `'store2'`=GS25, `'store3'`=세븐일레븐)와 매칭. 활성 시 각 브랜드 고유 색상 inline style로 적용 (CSS class 아님)
+- "⚡ 마감 임박" 섹션: `daysLeftFor()` 함수로 0~2일 남은 상품만 가로 스크롤(`.urgent-scroll`, `flex: 0 0 160px`)로 표시
 - 두 필터 AND 조건으로 `filteredProducts` computed. 결과 0개 시 빈 상태 + 필터 초기화 버튼
 - 필터 행은 가로 스크롤 (`overflow-x: auto`, 스크롤바 숨김)
 
