@@ -138,17 +138,46 @@
               @click="selectedCategory = ''"
             />
           </div>
-          <span class="text-grey-6 text-caption">
-            <template v-if="query">
-              <strong class="text-dark">"{{ query }}"</strong> 검색 결과
-            </template>
-            <template v-else> 카테고리 검색 결과 </template>
-            {{ filteredProducts.length }}개
-          </span>
+          <div class="result-count-row">
+            <span class="text-grey-6 text-caption">
+              <template v-if="query">
+                <strong class="text-dark">"{{ query }}"</strong> 검색 결과
+              </template>
+              <template v-else> 카테고리 검색 결과 </template>
+              {{ sortedProducts.length }}개
+            </span>
+            <q-space />
+            <q-btn flat dense rounded size="sm" class="sort-btn">
+              <q-icon name="sort" size="14px" class="q-mr-xs" />
+              <span>{{ currentSortLabel }}</span>
+              <q-icon name="expand_more" size="14px" />
+              <q-menu anchor="bottom right" self="top right">
+                <q-list dense style="min-width: 130px">
+                  <q-item
+                    v-for="opt in sortOptions"
+                    :key="opt.value"
+                    clickable
+                    v-close-popup
+                    @click="sortBy = opt.value"
+                  >
+                    <q-item-section>{{ opt.label }}</q-item-section>
+                    <q-item-section side>
+                      <q-icon
+                        v-if="sortBy === opt.value"
+                        name="check"
+                        color="primary"
+                        size="14px"
+                      />
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-btn>
+          </div>
         </div>
 
-        <div v-if="filteredProducts.length" class="row q-col-gutter-sm q-pb-xl">
-          <div v-for="p in filteredProducts" :key="p.id" class="col-6">
+        <div v-if="sortedProducts.length" class="row q-col-gutter-sm q-pb-xl">
+          <div v-for="p in sortedProducts" :key="p.id" class="col-6">
             <ProductCard :product="p" @click="goToDetail(p.id)" />
           </div>
         </div>
@@ -263,7 +292,7 @@ const popularKeywords = [
   { word: '아이스크림', trend: 'new' },
 ];
 
-// ── Filtering ────────────────────────────────────
+// ── Filtering & Sorting ──────────────────────────
 const isSearching = computed(() => !!query.value || !!selectedCategory.value);
 
 const filteredProducts = computed(() => {
@@ -274,6 +303,38 @@ const filteredProducts = computed(() => {
       !q || p.name.toLowerCase().includes(q) || p.storeName.toLowerCase().includes(q);
     return matchesCategory && matchesQuery;
   });
+});
+
+const sortBy = ref('default');
+
+const sortOptions = [
+  { value: 'default', label: '기본순' },
+  { value: 'discount', label: '할인율순' },
+  { value: 'expiry', label: '마감임박순' },
+  { value: 'price_low', label: '낮은 가격순' },
+  { value: 'price_high', label: '높은 가격순' },
+];
+
+const currentSortLabel = computed(
+  () => sortOptions.find((o) => o.value === sortBy.value)?.label ?? '기본순',
+);
+
+const sortedProducts = computed(() => {
+  const list = [...filteredProducts.value];
+  switch (sortBy.value) {
+    case 'discount':
+      return list.sort((a, b) => b.discountPercent - a.discountPercent);
+    case 'expiry':
+      return list.sort(
+        (a, b) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime(),
+      );
+    case 'price_low':
+      return list.sort((a, b) => a.discountPrice - b.discountPrice);
+    case 'price_high':
+      return list.sort((a, b) => b.discountPrice - a.discountPrice);
+    default:
+      return list;
+  }
 });
 
 function goToDetail(id: string) {
@@ -467,6 +528,22 @@ function goToDetail(id: string) {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.result-count-row {
+  display: flex;
+  align-items: center;
+}
+
+.sort-btn {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  border: 1.5px solid #eeeeee;
+  border-radius: 20px;
+  padding: 4px 10px;
+  background: white;
+  gap: 2px;
 }
 
 .active-cat-chip {

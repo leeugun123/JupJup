@@ -80,13 +80,35 @@
     <!-- Section Header -->
     <div class="section-header q-px-md q-pt-xs q-pb-xs">
       <div class="section-title">오늘의 특가 🔥</div>
-      <div class="section-count text-grey-5">{{ filteredProducts.length }}개</div>
+      <span class="section-count text-grey-5">{{ sortedProducts.length }}개</span>
+      <q-space />
+      <q-btn flat dense rounded size="sm" class="sort-btn">
+        <q-icon name="sort" size="14px" class="q-mr-xs" />
+        <span>{{ currentSortLabel }}</span>
+        <q-icon name="expand_more" size="14px" />
+        <q-menu anchor="bottom right" self="top right">
+          <q-list dense style="min-width: 130px">
+            <q-item
+              v-for="opt in sortOptions"
+              :key="opt.value"
+              clickable
+              v-close-popup
+              @click="sortBy = opt.value"
+            >
+              <q-item-section>{{ opt.label }}</q-item-section>
+              <q-item-section side>
+                <q-icon v-if="sortBy === opt.value" name="check" color="primary" size="14px" />
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-btn>
     </div>
 
     <!-- Product Grid -->
     <div class="q-px-md q-pb-xl">
-      <div v-if="filteredProducts.length" class="row q-col-gutter-sm">
-        <div v-for="product in filteredProducts" :key="product.id" class="col-6">
+      <div v-if="sortedProducts.length" class="row q-col-gutter-sm">
+        <div v-for="product in sortedProducts" :key="product.id" class="col-6">
           <ProductCard :product="product" @click="goToDetail(product.id)" />
         </div>
       </div>
@@ -100,10 +122,7 @@
           label="전체 보기"
           color="primary"
           class="q-mt-sm"
-          @click="
-            selectedCategory = 'all';
-            selectedStore = 'all';
-          "
+          @click="selectedCategory = 'all'; selectedStore = 'all';"
         />
       </div>
     </div>
@@ -121,6 +140,19 @@ const router = useRouter();
 const bannerSlide = ref(0);
 const selectedCategory = ref('all');
 const selectedStore = ref('all');
+const sortBy = ref('default');
+
+const sortOptions = [
+  { value: 'default', label: '기본순' },
+  { value: 'discount', label: '할인율순' },
+  { value: 'expiry', label: '마감임박순' },
+  { value: 'price_low', label: '낮은 가격순' },
+  { value: 'price_high', label: '높은 가격순' },
+];
+
+const currentSortLabel = computed(
+  () => sortOptions.find((o) => o.value === sortBy.value)?.label ?? '기본순',
+);
 
 const banners = [
   {
@@ -185,6 +217,24 @@ const filteredProducts = computed(() =>
     return matchCat && matchStore;
   }),
 );
+
+const sortedProducts = computed(() => {
+  const list = [...filteredProducts.value];
+  switch (sortBy.value) {
+    case 'discount':
+      return list.sort((a, b) => b.discountPercent - a.discountPercent);
+    case 'expiry':
+      return list.sort(
+        (a, b) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime(),
+      );
+    case 'price_low':
+      return list.sort((a, b) => a.discountPrice - b.discountPrice);
+    case 'price_high':
+      return list.sort((a, b) => b.discountPrice - a.discountPrice);
+    default:
+      return list;
+  }
+});
 
 function goToDetail(id: string) {
   void router.push(`/product/${id}`);
@@ -355,8 +405,8 @@ function goToDetail(id: string) {
 // ── Section Header ─────────────────────────────
 .section-header {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  align-items: center;
+  gap: 6px;
 }
 
 .section-title {
@@ -368,6 +418,17 @@ function goToDetail(id: string) {
 
 .section-count {
   font-size: 13px;
+}
+
+.sort-btn {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  border: 1.5px solid #eeeeee;
+  border-radius: 20px;
+  padding: 4px 10px;
+  background: white;
+  gap: 2px;
 }
 
 // ── Empty State ────────────────────────────────

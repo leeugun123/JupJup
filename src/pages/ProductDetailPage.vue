@@ -81,6 +81,20 @@
             </div>
           </div>
         </div>
+
+        <!-- Related Products -->
+        <div v-if="relatedProducts.length" class="related-section">
+          <div class="divider" />
+          <div class="related-header">
+            <span class="related-title">이 편의점의 다른 특가</span>
+            <span class="related-store" :style="`color: ${storeColor}`">{{ product.storeName }}</span>
+          </div>
+          <div class="related-scroll">
+            <div v-for="p in relatedProducts" :key="p.id" class="related-item">
+              <ProductCard :product="p" @click="router.push(`/product/${p.id}`)" />
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Bottom Action Bar -->
@@ -216,6 +230,7 @@ import { useFavoritesStore } from '../stores/favorites';
 import { usePurchasesStore } from '../stores/purchases';
 import type { Purchase } from '../stores/purchases';
 import { storeConfig } from '../data/stores';
+import ProductCard from '../components/ProductCard.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -261,6 +276,13 @@ const storeInfo = computed(() =>
 const storeColor = computed(() => storeInfo.value?.color ?? '#ff4757');
 const storeBgColor = computed(() => storeInfo.value?.bgColor ?? '#fff0f1');
 const storeBrand = computed(() => storeInfo.value?.label ?? '');
+
+const relatedProducts = computed(() => {
+  if (!product.value) return [];
+  return mockProducts
+    .filter((p) => p.storeId === product.value!.storeId && p.id !== product.value!.id)
+    .slice(0, 8);
+});
 </script>
 
 <style scoped lang="scss">
@@ -416,6 +438,45 @@ const storeBrand = computed(() => storeInfo.value?.label ?? '');
 .store-brand-label {
   font-weight: 800;
   margin-right: 2px;
+}
+
+// ── Related Products ───────────────────────────
+.related-section {
+  padding-bottom: 24px;
+}
+
+.related-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.related-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1a1a2e;
+  letter-spacing: -0.3px;
+}
+
+.related-store {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.related-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.related-item {
+  flex: 0 0 155px;
 }
 
 .info-row {
