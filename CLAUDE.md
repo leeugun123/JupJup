@@ -41,6 +41,7 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 **Stores:**
 - `src/stores/favorites.ts` — 찜한 상품 ID 목록 관리. `toggle(id)`, `isFavorite(id)`, `favoriteProducts` (computed) 제공.
 - `src/stores/purchases.ts` — 구매 내역 관리. `add(product)` 호출 시 랜덤 코드와 함께 `Purchase` 객체 생성 및 반환. `totalSavings()` 로 누적 절약 금액 계산.
+- `src/stores/auth.ts` — 로그인 상태 관리. `login(provider)` / `logout()` / `init()` 제공. `init()`은 `onMounted`에서 호출해 localStorage(`jupjup_auth`)에서 상태 복원. `isLoggedIn` computed. mock 로그인 전용 (실제 OAuth 미구현).
 
 **Styling:** Global SCSS variables in `src/css/quasar.variables.scss`. Brand colors: primary `#FF4757` (red), secondary `#FFA502` (orange), accent `#5352ED` (purple). Background color for pages: `#F7F8FA`. Scoped SCSS inside each component uses `lang="scss"`.
 
@@ -71,6 +72,10 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 - 찜 목록 배지: `favStore.ids.length > 0`일 때만 표시, 값은 동적 바인딩
 - 이용 내역 배지: `purchasesStore.history.length > 0`일 때만 표시
 - 이용 내역 메뉴 클릭 시 `/history`로 이동
+- `authStore.init()`을 `onMounted`에서 호출 — localStorage 로그인 상태 복원
+- 로그인 시: 프로필에 이름/이메일 표시, 아바타 우하단 제공자 배지(K/N), 계정 섹션 + 로그아웃 메뉴 표시, 로그인 배너 숨김
+- 비로그인 시: "게스트 사용자" 표시, 로그인 배너 표시, chevron 클릭 시 로그인 다이얼로그 오픈
+- 로그아웃 확인 다이얼로그 포함
 
 **HistoryPage.vue**
 - `usePurchasesStore().history`를 순서대로 렌더링 (최신순, `unshift`로 추가됨)
