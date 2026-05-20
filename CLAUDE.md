@@ -30,10 +30,11 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 | `/favorites` | `FavoritesPage.vue` | 찜 목록 2열 그리드, 빈 상태 UI 포함 |
 | `/my` | `MyPage.vue` | 프로필, 통계 카드, 메뉴 섹션, 로그인 다이얼로그 |
 | `/product/:id` | `ProductDetailPage.vue` | 히어로 이미지, 가격 정보, 하단 고정 액션바, 라우트 파라미터로 상품 조회 |
+| `/history` | `HistoryPage.vue` | 구매 요약 카드(총 건수 + 총 절약), 구매 내역 리스트, 빈 상태 UI |
 
 **Shared types:** `src/types/product.ts` exports the `Product` interface. Import from here — not from individual `.vue` files.
 
-**Mock data:** `src/data/mockProducts.ts`에서 중앙 관리. `HomePage`, `SearchPage`, `ProductDetailPage`가 공통으로 import해서 사용. API 레이어 없음.
+**Mock data:** `src/data/mockProducts.ts`에서 중앙 관리. `HomePage`, `SearchPage`, `ProductDetailPage`, `FavoritesPage`가 공통으로 import해서 사용. API 레이어 없음.
 
 **State management:** Pinia 사용. `src/boot/pinia.ts`에서 초기화 후 `quasar.config.ts` boot 배열에 등록. 새 스토어 추가 시 `src/stores/` 디렉토리에 생성하면 되고, boot 파일 재등록은 불필요.
 
@@ -65,3 +66,13 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 - 하단 액션바: `position: fixed; bottom: 60px` — 탭바(60px) 위에 위치해야 함. `bottom: 0`으로 설정하면 탭바에 가려짐
 - 구매 플로우: 구매하기 버튼 → 확인 바텀시트 → 구매 완료 다이얼로그(코드 + 바코드) → 홈으로 이동
 - 구매 완료 시 `usePurchasesStore().add(product)` 호출
+
+**MyPage.vue**
+- 찜 목록 배지: `favStore.ids.length > 0`일 때만 표시, 값은 동적 바인딩
+- 이용 내역 배지: `purchasesStore.history.length > 0`일 때만 표시
+- 이용 내역 메뉴 클릭 시 `/history`로 이동
+
+**HistoryPage.vue**
+- `usePurchasesStore().history`를 순서대로 렌더링 (최신순, `unshift`로 추가됨)
+- 상단 요약 카드: 총 구매 건수 + `totalSavings()` 누적 절약 금액
+- 내역 없을 때 빈 상태 UI 표시
