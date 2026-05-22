@@ -62,7 +62,9 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 
 **MainLayout.vue**
 
-- 헤더: 빨간 그라디언트 (`#FF4757 → #FF6B6B`), 브랜드명 + "마감 할인 특가" 태그라인 + 위치 칩(강남구) + 알림 벨
+- 헤더: 빨간 그라디언트 (`#FF4757 → #FF6B6B`), 브랜드명 + "마감 할인 특가" 태그라인 + 위치 칩 + 알림 벨
+- 위치 칩: 클릭 시 `q-dialog position="bottom"`으로 서울 16개 구 선택. 선택값 `localStorage('jupjup_location')`에 저장, `onMounted`에서 복원
+- 알림 벨: 마감 임박(D-2 이하) 상품 수 뱃지 표시. 클릭 시 `q-dialog position="bottom"`으로 임박 상품 목록 표시. 상품 클릭 시 상세 페이지 이동. `q-bottom-sheet`는 Quasar v2에서 플러그인이므로 템플릿에서 사용 불가 — 반드시 `q-dialog position="bottom"` 사용
 - 탭바: `q-route-tab` 사용 — `v-model` / watcher 불필요, 라우트 기반 자동 활성화
 - 탭바: `inactive-color="grey-5"`, `align="justify"` 필수 (없으면 비활성 탭 안 보임)
 - 탭바 색상: `:deep(.q-tab:not(.q-tab--active))` CSS로 명시 강제 (`inactive-color` prop만으로는 환경에 따라 미적용)
