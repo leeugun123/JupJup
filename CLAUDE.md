@@ -88,6 +88,13 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 - 비로그인 시: "게스트 사용자" 표시, 로그인 배너 표시, chevron 클릭 시 로그인 다이얼로그 오픈
 - 로그아웃 확인 다이얼로그 포함
 
+**FavoritesPage.vue**
+
+- 카테고리/편의점 필터: 찜한 상품에 실제로 존재하는 카테고리/편의점만 칩으로 표시 (`availableCategories`, `availableStores` computed)
+- 정렬: HomePage와 동일한 `sortBy`/`sortOptions` 패턴. `filteredSortedProducts` computed에서 필터 + 정렬 동시 처리
+- 필터 결과 0개 시 빈 상태 + "필터 초기화" 버튼 (`selectedCategory`/`selectedStore` → `'all'` 리셋)
+- 찜한 상품 자체가 0개일 때는 별도 빈 상태 UI ("아직 찜한 상품이 없어요") 표시
+
 **HistoryPage.vue**
 
 - `usePurchasesStore().history`를 순서대로 렌더링 (최신순, `unshift`로 추가됨)
