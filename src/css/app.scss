@@ -8,3 +8,74 @@ body {
 * {
   box-sizing: border-box;
 }
+
+// ── Dark Mode ──────────────────────────────────
+.body--dark {
+  // Page backgrounds
+  .home-page, .fav-page, .search-page, .my-page, .history-page, .detail-page {
+    background: #121212 !important;
+  }
+
+  // Cards
+  .product-card, .history-card, .menu-card, .stats-card, .summary-card,
+  .search-bar-wrap, .home-search-wrap {
+    background: #1e1e1e !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3) !important;
+  }
+
+  // Text
+  .product-name, .history-name, .menu-label, .section-title,
+  .fav-title, .history-title, .profile-name {
+    color: #e0e0e0 !important;
+  }
+
+  // Filter chips
+  .filter-chip, .sort-btn, .recent-chip {
+    background: #2a2a2a !important;
+    border-color: #333 !important;
+    color: #ccc !important;
+  }
+
+  // Home search bar
+  .home-search-bar {
+    background: #2a2a2a !important;
+  }
+
+  .home-search-placeholder {
+    color: #666 !important;
+  }
+
+  // Skeleton
+  .shimmer {
+    background: linear-gradient(90deg, #2a2a2a 25%, #333 50%, #2a2a2a 75%) !important;
+    background-size: 800px 100% !important;
+  }
+
+  // Detail content
+  .content-wrap, .confirm-sheet, .success-dialog, .detail-sheet,
+  .location-dialog, .notif-sheet, .coupon-sheet {
+    background: #1e1e1e !important;
+    color: #e0e0e0 !important;
+  }
+
+  // Footer
+  .app-footer {
+    background: #1a1a1a !important;
+  }
+
+  // Dividers
+  .divider { background: #2a2a2a !important; }
+  .q-separator { background: #2a2a2a !important; }
+
+  // Price/text overrides
+  .info-main, .confirm-title, .confirm-name, .success-title,
+  .detail-name, .coupon-code, .history-code {
+    color: #e0e0e0 !important;
+  }
+
+  // Background sections
+  .confirm-product-row, .review-item, .detail-product-row,
+  .store-info-card, .summary-card {
+    background: #2a2a2a !important;
+  }
+}

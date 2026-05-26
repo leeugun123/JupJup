@@ -77,7 +77,30 @@
                 <div class="info-sub">{{ product.location }}</div>
               </div>
               <q-space />
-              <q-btn flat round dense icon="map" color="grey-5" size="sm" />
+              <q-btn flat round dense icon="map" color="grey-5" size="sm" @click="showMap = !showMap" />
+            </div>
+          </div>
+
+          <!-- Mock Map -->
+          <div v-if="showMap" class="mock-map">
+            <div class="map-tile">
+              <div class="map-road map-road--h" style="top: 40%" />
+              <div class="map-road map-road--v" style="left: 35%" />
+              <div class="map-road map-road--h map-road--sub" style="top: 65%" />
+              <div class="map-road map-road--v map-road--sub" style="left: 65%" />
+              <div class="map-pin-wrap">
+                <div class="map-pin" :style="`background: ${storeColor}`">
+                  <q-icon name="storefront" size="14px" color="white" />
+                </div>
+                <div class="map-pin-label" :style="`color: ${storeColor}`">{{ storeBrand }}</div>
+              </div>
+              <div class="map-overlay-text">{{ product.location }}</div>
+            </div>
+            <div class="map-footer">
+              <q-icon name="location_on" size="14px" color="grey-5" />
+              <span class="map-addr">{{ product.location }}</span>
+              <q-space />
+              <span class="map-distance">약 350m</span>
             </div>
           </div>
         </div>
@@ -105,6 +128,48 @@
               @update:model-value="toggleAlert"
               @click.stop
             />
+          </div>
+        </div>
+
+        <!-- Reviews -->
+        <div class="review-section">
+          <div class="divider" />
+          <div class="review-header">
+            <span class="review-title">구매 후기</span>
+            <div class="review-avg-wrap">
+              <span class="review-avg">{{ avgRating }}</span>
+              <div class="stars-row">
+                <q-icon
+                  v-for="s in 5"
+                  :key="s"
+                  :name="s <= Math.round(avgRating) ? 'star' : 'star_border'"
+                  size="14px"
+                  color="warning"
+                />
+              </div>
+              <span class="review-count text-grey-5">({{ reviews.length }})</span>
+            </div>
+          </div>
+          <div class="review-list">
+            <div v-for="review in reviews" :key="review.id" class="review-item">
+              <div class="review-top">
+                <div class="review-avatar">{{ review.initial }}</div>
+                <div class="review-meta">
+                  <div class="review-name">{{ review.name }}</div>
+                  <div class="stars-row">
+                    <q-icon
+                      v-for="s in 5"
+                      :key="s"
+                      :name="s <= review.rating ? 'star' : 'star_border'"
+                      size="12px"
+                      color="warning"
+                    />
+                  </div>
+                </div>
+                <span class="review-date text-grey-5">{{ review.date }}</span>
+              </div>
+              <div class="review-text">{{ review.text }}</div>
+            </div>
           </div>
         </div>
 
@@ -266,6 +331,7 @@ import { usePurchasesStore } from '../stores/purchases';
 import type { Purchase } from '../stores/purchases';
 import { storeConfig } from '../data/stores';
 import ProductCard from '../components/ProductCard.vue';
+import { getProductReviews, getAverageRating } from '../data/mockReviews';
 
 const route = useRoute();
 const router = useRouter();
@@ -275,6 +341,7 @@ const purchasesStore = usePurchasesStore();
 
 const showConfirm = ref(false);
 const showSuccess = ref(false);
+const showMap = ref(false);
 const lastPurchase = ref<Purchase | null>(null);
 
 const product = computed(() => mockProducts.find((p) => p.id === route.params.id));
@@ -312,6 +379,9 @@ const storeInfo = computed(() =>
 const storeColor = computed(() => storeInfo.value?.color ?? '#ff4757');
 const storeBgColor = computed(() => storeInfo.value?.bgColor ?? '#fff0f1');
 const storeBrand = computed(() => storeInfo.value?.label ?? '');
+
+const reviews = computed(() => (product.value ? getProductReviews(product.value.id) : []));
+const avgRating = computed(() => getAverageRating(reviews.value));
 
 const relatedProducts = computed(() => {
   if (!product.value) return [];
@@ -623,6 +693,190 @@ async function shareProduct() {
   font-size: 12px;
   color: #aaaaaa;
   margin-top: 2px;
+}
+
+// ── Mock Map ──────────────────────────────────
+.mock-map {
+  margin-top: 10px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #eeeeee;
+}
+
+.map-tile {
+  position: relative;
+  height: 140px;
+  background: #e8f0e4;
+  overflow: hidden;
+}
+
+.map-road {
+  position: absolute;
+  background: white;
+
+  &--h { width: 100%; height: 10px; }
+  &--v { width: 10px; height: 100%; }
+  &--sub { background: rgba(255,255,255,0.6); height: 6px; width: 6px; }
+  &--h#{&}--sub { width: 100%; height: 6px; }
+  &--v#{&}--sub { width: 6px; height: 100%; }
+}
+
+.map-pin-wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.map-pin {
+  width: 32px;
+  height: 32px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+
+  .q-icon { transform: rotate(45deg); }
+}
+
+.map-pin-label {
+  font-size: 11px;
+  font-weight: 800;
+  background: white;
+  padding: 2px 6px;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+
+.map-overlay-text {
+  position: absolute;
+  bottom: 6px;
+  left: 8px;
+  font-size: 10px;
+  color: #555;
+  background: rgba(255,255,255,0.85);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.map-footer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px;
+  background: white;
+  border-top: 1px solid #f0f0f0;
+}
+
+.map-addr {
+  font-size: 12px;
+  color: #666;
+  flex: 1;
+}
+
+.map-distance {
+  font-size: 11px;
+  color: #ff4757;
+  font-weight: 600;
+}
+
+// ── Reviews ───────────────────────────────────
+.review-section {
+  padding-bottom: 20px;
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.review-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1a1a2e;
+}
+
+.review-avg-wrap {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.review-avg {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1a1a2e;
+}
+
+.stars-row {
+  display: flex;
+  gap: 1px;
+}
+
+.review-count {
+  font-size: 12px;
+}
+
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.review-item {
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.review-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.review-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff4757, #ff6b6b);
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.review-meta {
+  flex: 1;
+}
+
+.review-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 2px;
+}
+
+.review-date {
+  font-size: 11px;
+}
+
+.review-text {
+  font-size: 13px;
+  color: #444;
+  line-height: 1.5;
 }
 
 // ── Action Bar ────────────────────────────────

@@ -1,5 +1,6 @@
 <template>
   <q-page class="home-page">
+    <q-pull-to-refresh @refresh="onRefresh">
     <!-- Banner Carousel -->
     <div class="banner-section">
       <q-carousel
@@ -141,6 +142,7 @@
         />
       </div>
     </div>
+    </q-pull-to-refresh>
   </q-page>
 </template>
 
@@ -257,6 +259,14 @@ const sortedProducts = computed(() => {
 
 function goToDetail(id: string) {
   void router.push(`/product/${id}`);
+}
+
+function onRefresh(done: () => void) {
+  loading.value = true;
+  setTimeout(() => {
+    loading.value = false;
+    done();
+  }, 800);
 }
 </script>
 

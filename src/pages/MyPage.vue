@@ -95,12 +95,20 @@
             </div>
           </div>
           <q-separator inset />
-          <div class="menu-item">
+          <div class="menu-item" @click="showCouponWallet = true">
             <div class="menu-icon-wrap" style="background: #fff8e7">
-              <q-icon name="star" color="warning" size="18px" />
+              <q-icon name="confirmation_number" color="warning" size="18px" />
             </div>
-            <span class="menu-label">리뷰 내역</span>
-            <q-icon name="chevron_right" color="grey-4" size="18px" />
+            <span class="menu-label">쿠폰 지갑</span>
+            <div class="menu-right">
+              <q-badge
+                v-if="purchasesStore.history.length > 0"
+                color="warning"
+                :label="purchasesStore.history.length"
+                rounded
+              />
+              <q-icon name="chevron_right" color="grey-4" size="18px" />
+            </div>
           </div>
         </div>
       </div>
@@ -145,6 +153,16 @@
       <div class="menu-section">
         <div class="menu-section-title">앱 정보</div>
         <div class="menu-card">
+          <div class="menu-item" @click="toggleDark">
+            <div class="menu-icon-wrap" style="background: #f0f0f0">
+              <q-icon :name="isDark ? 'dark_mode' : 'light_mode'" color="grey-7" size="18px" />
+            </div>
+            <span class="menu-label">다크 모드</span>
+            <div class="menu-right">
+              <q-toggle :model-value="isDark" color="primary" dense size="sm" @update:model-value="toggleDark" @click.stop />
+            </div>
+          </div>
+          <q-separator inset />
           <div class="menu-item">
             <div class="menu-icon-wrap" style="background: #fff8f0">
               <q-icon name="campaign" color="secondary" size="18px" />
@@ -195,6 +213,34 @@
       </div>
     </div>
 
+    <!-- Coupon Wallet Dialog -->
+    <q-dialog v-model="showCouponWallet" position="bottom">
+      <q-card class="coupon-sheet">
+        <div class="dialog-handle" />
+        <div class="coupon-header">
+          <span class="coupon-title">🎟️ 쿠폰 지갑</span>
+          <span class="coupon-sub">{{ purchasesStore.history.length }}개의 코드</span>
+        </div>
+        <div v-if="purchasesStore.history.length" class="coupon-list">
+          <div v-for="p in purchasesStore.history" :key="p.id" class="coupon-item">
+            <div class="coupon-left">
+              <div class="coupon-code">{{ p.code }}</div>
+              <div class="coupon-name">{{ p.product.name }}</div>
+              <div class="coupon-store">{{ p.product.storeName }}</div>
+            </div>
+            <div class="coupon-right">
+              <div class="coupon-price">{{ p.product.discountPrice.toLocaleString() }}원</div>
+              <div class="coupon-saving">{{ p.savings.toLocaleString() }}원 절약</div>
+            </div>
+          </div>
+        </div>
+        <div v-else class="coupon-empty">
+          <q-icon name="confirmation_number" size="40px" color="grey-3" />
+          <div class="q-mt-sm text-grey-5" style="font-size: 13px">구매 내역이 없어요</div>
+        </div>
+      </q-card>
+    </q-dialog>
+
     <!-- Logout Confirm Dialog -->
     <q-dialog v-model="showLogoutDialog">
       <q-card class="logout-dialog">
@@ -242,10 +288,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { useQuasar } from 'quasar';
 import { useFavoritesStore } from '../stores/favorites';
 import { usePurchasesStore } from '../stores/purchases';
 import { useAuthStore } from '../stores/auth';
 
+const $q = useQuasar();
 const favStore = useFavoritesStore();
 const purchasesStore = usePurchasesStore();
 const authStore = useAuthStore();
@@ -253,8 +301,24 @@ const totalSavings = computed(() => purchasesStore.totalSavings());
 const notifOn = ref(true);
 const showLoginDialog = ref(false);
 const showLogoutDialog = ref(false);
+const showCouponWallet = ref(false);
 
-onMounted(() => authStore.init());
+const DARK_KEY = 'jupjup_dark';
+const isDark = ref($q.dark.isActive);
+
+function toggleDark() {
+  $q.dark.toggle();
+  isDark.value = $q.dark.isActive;
+  localStorage.setItem(DARK_KEY, isDark.value ? '1' : '');
+}
+
+onMounted(() => {
+  authStore.init();
+  if (localStorage.getItem(DARK_KEY)) {
+    $q.dark.set(true);
+    isDark.value = true;
+  }
+});
 
 function doLogin(provider: 'kakao' | 'naver') {
   authStore.login(provider);
@@ -497,6 +561,101 @@ function doLogout() {
   font-weight: 700;
   min-width: 68px;
   font-size: 13px;
+}
+
+// ── Coupon Wallet ─────────────────────────────
+.coupon-sheet {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 24px 24px 0 0 !important;
+  padding-bottom: 32px;
+}
+
+.dialog-handle {
+  width: 36px;
+  height: 4px;
+  background: #e0e0e0;
+  border-radius: 2px;
+  margin: 12px auto 0;
+}
+
+.coupon-header {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.coupon-title {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+  color: #1a1a2e;
+}
+
+.coupon-sub {
+  display: block;
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 2px;
+}
+
+.coupon-list {
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+.coupon-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid #f7f7f7;
+}
+
+.coupon-left {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.coupon-code {
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  color: #1a1a2e;
+}
+
+.coupon-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+}
+
+.coupon-store {
+  font-size: 11px;
+  color: #aaa;
+}
+
+.coupon-right {
+  text-align: right;
+}
+
+.coupon-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ff4757;
+}
+
+.coupon-saving {
+  font-size: 11px;
+  color: #2ed573;
+  font-weight: 600;
+}
+
+.coupon-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 0;
 }
 
 // ── Login Dialog ──────────────────────────────
