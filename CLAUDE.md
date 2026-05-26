@@ -21,6 +21,10 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 
 **Layout:** `MainLayout.vue` wraps every page with a top header (red gradient) and a bottom tab bar (홈 / 검색 / 찜 / 마이). 탭바는 `q-route-tab`을 사용해 라우트 기반으로 활성 상태를 자동 감지한다.
 
+**App.vue**
+
+- 온보딩: `localStorage('jupjup_onboarded')` 미존재 시 첫 실행 풀스크린 온보딩 오버레이 표시. 4슬라이드 `q-carousel` (환영/할인/찜/시작하기). "건너뛰기" + 마지막 슬라이드 "시작하기" 버튼으로 완료 처리. `<Transition name="fade">`로 진입/퇴장 애니메이션.
+
 **Pages and routes:**
 
 | Route          | Page                    | Notes                                                                           |
@@ -80,6 +84,7 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 - 편의점 정보 카드: `storeConfig[product.storeId]`로 브랜드 컬러 좌측 보더 + 아이콘 색상 적용 (`.store-info-card`)
 - "이 편의점의 다른 특가" 섹션: `relatedProducts` computed — 같은 `storeId`이고 현재 상품 제외, 최대 8개. 가로 스크롤(`.related-scroll`, `flex: 0 0 155px`). 카드 클릭 시 `router.push('/product/:id')`로 이동
 - 공유 버튼: 액션바에 찜 버튼 옆 추가. `navigator.share` 지원 시 네이티브 공유 시트, 미지원 시 클립보드 복사 + `useQuasar().$q.notify` 토스트
+- 마감 알림 토글: 편의점 정보 아래 `q-toggle` + 벨 아이콘 섹션. `localStorage('jupjup_alert_${id}')` 로 상품별 저장. `watch(product.id)` 로 상품 전환 시 상태 복원. 토글 시 토스트 피드백
 
 **MyPage.vue**
 
@@ -114,6 +119,7 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 - 두 필터 AND 조건으로 `filteredProducts` computed. 결과 0개 시 빈 상태 + 필터 초기화 버튼
 - 필터 행은 가로 스크롤 (`overflow-x: auto`, 스크롤바 숨김)
 - 정렬: `sortBy` ref + `sortOptions` (기본순/할인율순/마감임박순/낮은가격순/높은가격순). `sortedProducts` computed가 `filteredProducts`를 정렬해 그리드에 공급. 정렬 버튼은 `q-btn` + `q-menu` 패턴 (섹션 헤더 우측)
+- 인라인 검색바: 배너 아래 클릭 전용 검색바. 탭 시 `/search`로 이동. `readonly` div 스타일로 구현 (실제 input 아님)
 
 **SearchPage.vue**
 
