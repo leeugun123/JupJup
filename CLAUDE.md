@@ -42,12 +42,12 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 
 **Store brand config:** `src/data/stores.ts` — 편의점 브랜드 색상 중앙 관리. `storeConfig` Record로 `storeId`를 key로 `{ label, color, bgColor }` 반환. `ProductCard`, `ProductDetailPage`에서 import해 브랜드 색상 적용.
 
-**State management:** Pinia 사용. `src/boot/pinia.ts`에서 초기화 후 `quasar.config.ts` boot 배열에 등록. 새 스토어 추가 시 `src/stores/` 디렉토리에 생성하면 되고, boot 파일 재등록은 불필요.
+**State management:** Pinia 사용. `src/boot/pinia.ts`에서 초기화 후 `quasar.config.ts` boot 배열에 등록. 새 스토어 추가 시 `src/stores/` 디렉토리에 생성하면 되고, boot 파일 재등록은 불필요. `pinia-plugin-persistedstate` 등록됨 — 스토어에 `persist: true` 옵션만 추가하면 localStorage 자동 저장.
 
 **Stores:**
 
-- `src/stores/favorites.ts` — 찜한 상품 ID 목록 관리. `toggle(id)`, `isFavorite(id)`, `favoriteProducts` (computed) 제공.
-- `src/stores/purchases.ts` — 구매 내역 관리. `add(product)` 호출 시 랜덤 코드와 함께 `Purchase` 객체 생성 및 반환. `totalSavings()` 로 누적 절약 금액 계산.
+- `src/stores/favorites.ts` — 찜한 상품 ID 목록 관리. `toggle(id)`, `isFavorite(id)`, `favoriteProducts` (computed) 제공. `persist: true`로 localStorage 자동 저장.
+- `src/stores/purchases.ts` — 구매 내역 관리. `add(product)` 호출 시 랜덤 코드와 함께 `Purchase` 객체 생성 및 반환. `totalSavings()` 로 누적 절약 금액 계산. `persist: true`로 localStorage 자동 저장.
 - `src/stores/auth.ts` — 로그인 상태 관리. `login(provider)` / `logout()` / `init()` 제공. `init()`은 `onMounted`에서 호출해 localStorage(`jupjup_auth`)에서 상태 복원. `isLoggedIn` computed. mock 로그인 전용 (실제 OAuth 미구현).
 
 **Styling:** Global SCSS variables in `src/css/quasar.variables.scss`. Brand colors: primary `#FF4757` (red), secondary `#FFA502` (orange), accent `#5352ED` (purple). Background color for pages: `#F7F8FA`. Scoped SCSS inside each component uses `lang="scss"`.
@@ -55,6 +55,12 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 **Quasar auto-import:** Quasar components (`q-card`, `q-btn`, etc.) are auto-imported — no manual import needed in templates.
 
 ## Component Notes
+
+**ProductCardSkeleton.vue**
+
+- ProductCard와 동일한 레이아웃의 shimmer 스켈레톤. `pinia-plugin-persistedstate` 없이 순수 CSS 애니메이션(`@keyframes shimmer`).
+- HomePage/FavoritesPage: `onMounted` + `setTimeout`으로 첫 진입 시 600/500ms 표시.
+- SearchPage: `watch(isSearching)`으로 검색/카테고리 전환 시 400ms 표시.
 
 **ProductCard.vue**
 
