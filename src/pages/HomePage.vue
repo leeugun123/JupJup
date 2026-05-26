@@ -115,7 +115,14 @@
 
     <!-- Product Grid -->
     <div class="q-px-md q-pb-xl">
-      <div v-if="sortedProducts.length" class="row q-col-gutter-sm">
+      <!-- 스켈레톤 -->
+      <div v-if="loading" class="row q-col-gutter-sm">
+        <div v-for="i in 6" :key="i" class="col-6">
+          <ProductCardSkeleton />
+        </div>
+      </div>
+
+      <div v-else-if="sortedProducts.length" class="row q-col-gutter-sm">
         <div v-for="product in sortedProducts" :key="product.id" class="col-6">
           <ProductCard :product="product" @click="goToDetail(product.id)" />
         </div>
@@ -138,12 +145,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import ProductCard from '../components/ProductCard.vue';
+import ProductCardSkeleton from '../components/ProductCardSkeleton.vue';
 import { mockProducts } from '../data/mockProducts';
 
 const router = useRouter();
+
+const loading = ref(true);
+onMounted(() => { setTimeout(() => { loading.value = false; }, 600); });
 
 const bannerSlide = ref(0);
 const selectedCategory = ref('all');

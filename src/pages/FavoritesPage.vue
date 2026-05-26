@@ -67,7 +67,13 @@
 
       <!-- Product Grid -->
       <div class="q-px-md q-pb-xl">
-        <div v-if="filteredSortedProducts.length" class="row q-col-gutter-sm">
+        <div v-if="loading" class="row q-col-gutter-sm">
+          <div v-for="i in 4" :key="i" class="col-6">
+            <ProductCardSkeleton />
+          </div>
+        </div>
+
+        <div v-else-if="filteredSortedProducts.length" class="row q-col-gutter-sm">
           <div v-for="product in filteredSortedProducts" :key="product.id" class="col-6">
             <ProductCard :product="product" @click="goToDetail(product.id)" />
           </div>
@@ -99,13 +105,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import ProductCard from '../components/ProductCard.vue';
+import ProductCardSkeleton from '../components/ProductCardSkeleton.vue';
 import { useFavoritesStore } from '../stores/favorites';
 
 const router = useRouter();
 const favStore = useFavoritesStore();
+
+const loading = ref(true);
+onMounted(() => { setTimeout(() => { loading.value = false; }, 500); });
 
 const selectedCategory = ref('all');
 const selectedStore = ref('all');

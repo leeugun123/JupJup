@@ -176,7 +176,13 @@
           </div>
         </div>
 
-        <div v-if="sortedProducts.length" class="row q-col-gutter-sm q-pb-xl">
+        <div v-if="loading" class="row q-col-gutter-sm q-pb-xl">
+          <div v-for="i in 6" :key="i" class="col-6">
+            <ProductCardSkeleton />
+          </div>
+        </div>
+
+        <div v-else-if="sortedProducts.length" class="row q-col-gutter-sm q-pb-xl">
           <div v-for="p in sortedProducts" :key="p.id" class="col-6">
             <ProductCard :product="p" @click="goToDetail(p.id)" />
           </div>
@@ -193,15 +199,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import ProductCard from '../components/ProductCard.vue';
+import ProductCardSkeleton from '../components/ProductCardSkeleton.vue';
 import { mockProducts } from '../data/mockProducts';
 
 const router = useRouter();
 const inputRef = ref<{ focus: () => void } | null>(null);
 const query = ref('');
 const selectedCategory = ref('');
+const loading = ref(false);
 
 onMounted(() => {
   setTimeout(() => inputRef.value?.focus(), 100);
@@ -294,6 +302,17 @@ const popularKeywords = [
 
 // ── Filtering & Sorting ──────────────────────────
 const isSearching = computed(() => !!query.value || !!selectedCategory.value);
+
+let loadingTimer: ReturnType<typeof setTimeout> | null = null;
+watch(isSearching, (val) => {
+  if (val) {
+    loading.value = true;
+    if (loadingTimer) clearTimeout(loadingTimer);
+    loadingTimer = setTimeout(() => { loading.value = false; }, 400);
+  } else {
+    loading.value = false;
+  }
+});
 
 const filteredProducts = computed(() => {
   const q = query.value.toLowerCase();
