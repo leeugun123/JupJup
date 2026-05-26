@@ -33,6 +33,14 @@
       </div>
     </div>
 
+    <!-- Search Bar -->
+    <div class="home-search-wrap q-px-md q-pt-sm q-pb-xs" @click="router.push('/search')">
+      <div class="home-search-bar">
+        <q-icon name="search" size="18px" color="grey-5" />
+        <span class="home-search-placeholder">상품명, 편의점 검색</span>
+      </div>
+    </div>
+
     <!-- Filters -->
     <div class="filter-section q-pt-sm q-pb-xs">
       <div class="filter-row">
@@ -245,6 +253,32 @@ function goToDetail(id: string) {
 .home-page {
   background: #f7f8fa;
   min-height: 100vh;
+}
+
+// ── Search Bar ─────────────────────────────────
+.home-search-wrap {
+  background: white;
+  cursor: pointer;
+}
+
+.home-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f5f6f8;
+  border-radius: 12px;
+  padding: 11px 14px;
+  transition: background 0.15s;
+
+  &:active {
+    background: #ecedf0;
+  }
+}
+
+.home-search-placeholder {
+  font-size: 14px;
+  color: #aaaaaa;
+  flex: 1;
 }
 
 // ── Banner ─────────────────────────────────────

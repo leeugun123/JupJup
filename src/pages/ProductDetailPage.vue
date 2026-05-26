@@ -82,6 +82,32 @@
           </div>
         </div>
 
+        <!-- Alert Toggle -->
+        <div class="alert-section">
+          <div class="divider" />
+          <div class="alert-row" @click="toggleAlert">
+            <div class="alert-left">
+              <div class="alert-icon-wrap" :class="{ 'alert-icon-wrap--on': alertOn }">
+                <q-icon
+                  :name="alertOn ? 'notifications_active' : 'notifications_none'"
+                  size="20px"
+                  :color="alertOn ? 'white' : 'grey-5'"
+                />
+              </div>
+              <div>
+                <div class="alert-title">마감 알림</div>
+                <div class="alert-sub">{{ alertOn ? '알림이 설정됐어요' : '마감 시 알림을 받아보세요' }}</div>
+              </div>
+            </div>
+            <q-toggle
+              :model-value="alertOn"
+              color="primary"
+              @update:model-value="toggleAlert"
+              @click.stop
+            />
+          </div>
+        </div>
+
         <!-- Related Products -->
         <div v-if="relatedProducts.length" class="related-section">
           <div class="divider" />
@@ -231,7 +257,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { mockProducts } from '../data/mockProducts';
@@ -293,6 +319,30 @@ const relatedProducts = computed(() => {
     .filter((p) => p.storeId === product.value!.storeId && p.id !== product.value!.id)
     .slice(0, 8);
 });
+
+const ALERT_KEY = (id: string) => `jupjup_alert_${id}`;
+const alertOn = ref(false);
+
+watch(
+  () => product.value?.id,
+  (id) => {
+    if (id) alertOn.value = !!localStorage.getItem(ALERT_KEY(id));
+  },
+  { immediate: true },
+);
+
+function toggleAlert() {
+  if (!product.value) return;
+  const key = ALERT_KEY(product.value.id);
+  alertOn.value = !alertOn.value;
+  if (alertOn.value) {
+    localStorage.setItem(key, '1');
+    $q.notify({ message: '마감 알림이 설정됐어요! 🔔', color: 'dark', timeout: 1800 });
+  } else {
+    localStorage.removeItem(key);
+    $q.notify({ message: '알림이 해제됐어요', color: 'grey-7', timeout: 1600 });
+  }
+}
 
 async function shareProduct() {
   if (!product.value) return;
@@ -459,6 +509,53 @@ async function shareProduct() {
 .store-brand-label {
   font-weight: 800;
   margin-right: 2px;
+}
+
+// ── Alert Toggle ──────────────────────────────
+.alert-section {
+  padding-bottom: 4px;
+}
+
+.alert-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0 20px;
+  cursor: pointer;
+}
+
+.alert-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.alert-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+
+  &--on {
+    background: #ff4757;
+  }
+}
+
+.alert-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.alert-sub {
+  font-size: 12px;
+  color: #aaaaaa;
+  margin-top: 2px;
 }
 
 // ── Related Products ───────────────────────────
