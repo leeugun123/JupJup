@@ -79,6 +79,7 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 - 구매 완료 시 `usePurchasesStore().add(product)` 호출
 - 편의점 정보 카드: `storeConfig[product.storeId]`로 브랜드 컬러 좌측 보더 + 아이콘 색상 적용 (`.store-info-card`)
 - "이 편의점의 다른 특가" 섹션: `relatedProducts` computed — 같은 `storeId`이고 현재 상품 제외, 최대 8개. 가로 스크롤(`.related-scroll`, `flex: 0 0 155px`). 카드 클릭 시 `router.push('/product/:id')`로 이동
+- 공유 버튼: 액션바에 찜 버튼 옆 추가. `navigator.share` 지원 시 네이티브 공유 시트, 미지원 시 클립보드 복사 + `useQuasar().$q.notify` 토스트
 
 **MyPage.vue**
 
@@ -102,6 +103,7 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 - `usePurchasesStore().history`를 순서대로 렌더링 (최신순, `unshift`로 추가됨)
 - 상단 요약 카드: 총 구매 건수 + `totalSavings()` 누적 절약 금액
 - 내역 없을 때 빈 상태 UI 표시
+- 카드 클릭 시 구매 상세 다이얼로그 (`q-dialog position="bottom"`): 상품 이미지/이름/가격, 절약 금액 배지, 구매 코드 + 바코드. `selectedPurchase` ref로 관리
 
 **HomePage.vue**
 
