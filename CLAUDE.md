@@ -52,6 +52,8 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 
 **Styling:** Global SCSS variables in `src/css/quasar.variables.scss`. Brand colors: primary `#FF4757` (red), secondary `#FFA502` (orange), accent `#5352ED` (purple). Background color for pages: `#F7F8FA`. Scoped SCSS inside each component uses `lang="scss"`.
 
+**다크 모드:** `src/css/app.scss`에 `.body--dark` 전역 오버라이드 정의. Quasar가 `$q.dark.set(true)` 시 `body` 태그에 `body--dark` 클래스를 추가하면 전역 CSS가 적용됨. 스코프드 CSS의 클래스명은 HTML에 그대로 남아 있으므로 전역 `.body--dark .class` 셀렉터로 오버라이드 가능.
+
 **Quasar auto-import:** Quasar components (`q-card`, `q-btn`, etc.) are auto-imported — no manual import needed in templates.
 
 ## Component Notes
@@ -91,6 +93,8 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 - "이 편의점의 다른 특가" 섹션: `relatedProducts` computed — 같은 `storeId`이고 현재 상품 제외, 최대 8개. 가로 스크롤(`.related-scroll`, `flex: 0 0 155px`). 카드 클릭 시 `router.push('/product/:id')`로 이동
 - 공유 버튼: 액션바에 찜 버튼 옆 추가. `navigator.share` 지원 시 네이티브 공유 시트, 미지원 시 클립보드 복사 + `useQuasar().$q.notify` 토스트
 - 마감 알림 토글: 편의점 정보 아래 `q-toggle` + 벨 아이콘 섹션. `localStorage('jupjup_alert_${id}')` 로 상품별 저장. `watch(product.id)` 로 상품 전환 시 상태 복원. 토글 시 토스트 피드백
+- mock 지도: 편의점 정보 카드 우측 지도 아이콘 클릭 시 CSS 기반 mock 지도 토글 (`showMap` ref). 도로/핀/주소/거리 표시
+- 리뷰/평점: `src/data/mockReviews.ts`에서 상품 ID 해시 기반으로 3~5개 리뷰 결정론적 생성. `getProductReviews(id)` + `getAverageRating(reviews)`. 별점 평균 + 리뷰 리스트 표시
 
 **MyPage.vue**
 
@@ -101,6 +105,8 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 - 로그인 시: 프로필에 이름/이메일 표시, 아바타 우하단 제공자 배지(K/N), 계정 섹션 + 로그아웃 메뉴 표시, 로그인 배너 숨김
 - 비로그인 시: "게스트 사용자" 표시, 로그인 배너 표시, chevron 클릭 시 로그인 다이얼로그 오픈
 - 로그아웃 확인 다이얼로그 포함
+- 쿠폰 지갑: 내 활동 섹션에 메뉴 추가. 클릭 시 `q-dialog position="bottom"`으로 전체 구매 코드 목록 표시
+- 다크 모드: 앱 정보 섹션에 토글. `useQuasar().$q.dark.toggle()` + `localStorage('jupjup_dark')` 저장. `onMounted`에서 복원
 
 **FavoritesPage.vue**
 
@@ -126,6 +132,7 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 - 필터 행은 가로 스크롤 (`overflow-x: auto`, 스크롤바 숨김)
 - 정렬: `sortBy` ref + `sortOptions` (기본순/할인율순/마감임박순/낮은가격순/높은가격순). `sortedProducts` computed가 `filteredProducts`를 정렬해 그리드에 공급. 정렬 버튼은 `q-btn` + `q-menu` 패턴 (섹션 헤더 우측)
 - 인라인 검색바: 배너 아래 클릭 전용 검색바. 탭 시 `/search`로 이동. `readonly` div 스타일로 구현 (실제 input 아님)
+- 풀-투-리프레시: `q-pull-to-refresh`로 전체 콘텐츠 래핑. `onRefresh(done)` 콜백에서 `loading = true` → 800ms 후 `loading = false` + `done()` 호출
 
 **SearchPage.vue**
 
