@@ -108,6 +108,14 @@
           @click="favStore.toggle(product.id)"
         />
         <q-btn
+          flat
+          round
+          icon="share"
+          color="grey-5"
+          class="fav-btn"
+          @click="shareProduct"
+        />
+        <q-btn
           unelevated
           label="구매하기"
           color="primary"
@@ -225,6 +233,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useQuasar } from 'quasar';
 import { mockProducts } from '../data/mockProducts';
 import { useFavoritesStore } from '../stores/favorites';
 import { usePurchasesStore } from '../stores/purchases';
@@ -234,6 +243,7 @@ import ProductCard from '../components/ProductCard.vue';
 
 const route = useRoute();
 const router = useRouter();
+const $q = useQuasar();
 const favStore = useFavoritesStore();
 const purchasesStore = usePurchasesStore();
 
@@ -283,6 +293,17 @@ const relatedProducts = computed(() => {
     .filter((p) => p.storeId === product.value!.storeId && p.id !== product.value!.id)
     .slice(0, 8);
 });
+
+async function shareProduct() {
+  if (!product.value) return;
+  const text = `${product.value.name} · ${product.value.discountPercent}% 할인 · ${product.value.discountPrice.toLocaleString()}원\n${product.value.storeName}`;
+  if (navigator.share) {
+    await navigator.share({ title: product.value.name, text, url: window.location.href });
+  } else {
+    await navigator.clipboard.writeText(`${text}\n${window.location.href}`);
+    $q.notify({ message: '링크가 복사됐어요!', icon: 'link', color: 'dark', timeout: 1800 });
+  }
+}
 </script>
 
 <style scoped lang="scss">
