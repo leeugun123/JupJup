@@ -23,7 +23,9 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 
 **App.vue**
 
-- 온보딩: `localStorage('jupjup_onboarded')` 미존재 시 첫 실행 풀스크린 온보딩 오버레이 표시. 4슬라이드 `q-carousel` (환영/할인/찜/시작하기). "건너뛰기" + 마지막 슬라이드 "시작하기" 버튼으로 완료 처리. `<Transition name="fade">`로 진입/퇴장 애니메이션.
+- 스플래시 스크린: 앱 실행 시 **항상** 1.8초 표시. 빨간 그라디언트 배경, "jupjup" 로고 pop-in 애니메이션(`splash-pop` cubic-bezier 탄성), 태그라인/점 3개 순차 fade-in, pulse 반복 로딩 점. 종료 시 `scale(1.04) + opacity(0)` 전환. z-index: 10000
+- 온보딩: `localStorage('jupjup_onboarded')` 미존재 시 스플래시 완료 후 300ms 뒤 표시. 4슬라이드 `q-carousel` (환영/할인/찜/시작하기). "건너뛰기" + 마지막 슬라이드 "시작하기" 버튼으로 완료 처리. `<Transition name="fade">`로 진입/퇴장 애니메이션. z-index: 9999
+- 실행 순서: 스플래시(1.8s) → [미온보딩 시] 온보딩 → 홈 / [온보딩 완료 시] 홈
 
 **Pages and routes:**
 
