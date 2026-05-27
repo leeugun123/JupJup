@@ -40,6 +40,10 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 
 **Shared types:** `src/types/product.ts` exports the `Product` interface. Import from here — not from individual `.vue` files.
 
+**최근 본 상품:** `src/stores/recentlyViewed.ts` — Pinia setup store, `persist: true`. `add(id)` 호출 시 중복 제거 후 맨 앞 삽입, 최대 10개 유지. `products` computed로 `Product[]` 반환. `ProductDetailPage`의 `watch(() => product.value?.id, ...)` 내부에서 호출 (product 선언 후 watch — TDZ 방지). `HomePage`에 가로 스크롤 섹션으로 표시 (최대 6개).
+
+**검색 자동완성:** `SearchPage`에서 `q-input`의 `@focus`/`@blur` 이벤트 + `blurTimer`(200ms)로 포커스 상태 관리. `suggestions` computed: query ≥ 1자 시 상품명 포함 검색, 최대 6개. `showSuggestions = isFocused && suggestions.length > 0`. 드롭다운 `@mousedown.prevent`로 blur 전 click 보장. `highlightMatch()` 함수로 일치 부분 `<mark class="hl">` 감싸 빨간 강조 (`v-html`).
+
 **Mock data:** `src/data/mockProducts.ts`에서 중앙 관리 (37개). `HomePage`, `SearchPage`, `ProductDetailPage`, `FavoritesPage`가 공통으로 import해서 사용. API 레이어 없음.
 
 **Store brand config:** `src/data/stores.ts` — 편의점 브랜드 색상 중앙 관리. `storeConfig` Record로 `storeId`를 key로 `{ label, color, bgColor }` 반환. `ProductCard`, `ProductDetailPage`에서 import해 브랜드 색상 적용.
