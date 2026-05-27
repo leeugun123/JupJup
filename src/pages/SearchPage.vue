@@ -209,10 +209,8 @@
           </div>
         </div>
 
-        <div v-else class="column items-center q-py-xl text-grey-5">
-          <q-icon name="search_off" size="56px" color="grey-3" />
-          <div class="text-body2 text-weight-medium q-mt-md">검색 결과가 없어요</div>
-          <div class="text-caption q-mt-xs">다른 검색어를 입력해보세요</div>
+        <div v-else class="q-py-xl">
+          <EmptyState icon="🔍" title="검색 결과가 없어요" subtitle="다른 검색어를 입력해보세요" />
         </div>
       </div>
     </template>
@@ -224,6 +222,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import ProductCard from '../components/ProductCard.vue';
 import ProductCardSkeleton from '../components/ProductCardSkeleton.vue';
+import EmptyState from '../components/EmptyState.vue';
 import { mockProducts } from '../data/mockProducts';
 import type { Product } from '../types/product';
 

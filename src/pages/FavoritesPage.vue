@@ -79,27 +79,19 @@
           </div>
         </div>
 
-        <div v-else class="empty-filter column items-center q-py-xl">
-          <q-icon name="search_off" size="48px" color="grey-3" />
-          <div class="empty-title q-mt-md">해당 상품이 없어요</div>
-          <div class="empty-sub q-mt-xs">다른 조건으로 찾아보세요</div>
-          <q-btn
-            flat
-            label="필터 초기화"
-            color="primary"
-            class="q-mt-sm"
-            @click="selectedCategory = 'all'; selectedStore = 'all';"
-          />
+        <div v-else class="q-py-xl">
+          <EmptyState icon="🔍" title="해당 상품이 없어요" subtitle="다른 조건으로 찾아보세요">
+            <q-btn flat label="필터 초기화" color="primary" @click="selectedCategory = 'all'; selectedStore = 'all';" />
+          </EmptyState>
         </div>
       </div>
     </template>
 
     <!-- Empty State -->
-    <div v-else class="empty-state column items-center justify-center">
-      <q-icon name="favorite_border" size="64px" color="grey-3" />
-      <div class="empty-title q-mt-md">아직 찜한 상품이 없어요</div>
-      <div class="empty-sub q-mt-xs">마음에 드는 상품을 찜해보세요!</div>
-      <q-btn unelevated color="primary" rounded label="특가 상품 보러가기" class="q-mt-lg" to="/" />
+    <div v-else class="empty-state">
+      <EmptyState icon="🤍" title="아직 찜한 상품이 없어요" subtitle="마음에 드는 상품을 찜해보세요!">
+        <q-btn unelevated color="primary" rounded label="특가 상품 보러가기" to="/" />
+      </EmptyState>
     </div>
   </q-page>
 </template>
@@ -109,6 +101,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import ProductCard from '../components/ProductCard.vue';
 import ProductCardSkeleton from '../components/ProductCardSkeleton.vue';
+import EmptyState from '../components/EmptyState.vue';
 import { useFavoritesStore } from '../stores/favorites';
 
 const router = useRouter();
@@ -283,23 +276,9 @@ function goToDetail(id: string) {
 
 // ── Empty States ───────────────────────────────
 .empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: calc(100vh - 140px);
-  text-align: center;
-  padding: 0 32px;
-}
-
-.empty-filter {
-  text-align: center;
-}
-
-.empty-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #444;
-}
-
-.empty-sub {
-  font-size: 13px;
-  color: #aaaaaa;
 }
 </style>

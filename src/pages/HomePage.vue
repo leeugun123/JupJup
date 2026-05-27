@@ -42,6 +42,32 @@
       </div>
     </div>
 
+    <!-- 오늘의 베스트 -->
+    <section class="best-section q-pt-md q-pb-sm">
+      <div class="section-header q-px-md q-mb-sm">
+        <div class="section-title">오늘의 베스트 🏆</div>
+      </div>
+      <div class="best-scroll">
+        <div
+          v-for="(product, idx) in bestProducts"
+          :key="product.id"
+          class="best-card"
+          @click="goToDetail(product.id)"
+        >
+          <div class="best-img-wrap">
+            <q-img :src="product.image" width="100%" height="110px" fit="cover" />
+            <span class="rank-badge">{{ rankLabel(idx) }}</span>
+            <span class="best-discount-badge">-{{ product.discountPercent }}%</span>
+          </div>
+          <div class="best-info">
+            <div class="best-store">{{ product.storeName }}</div>
+            <div class="best-name">{{ product.name }}</div>
+            <div class="best-price">{{ product.discountPrice.toLocaleString() }}원</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- 최근 본 상품 -->
     <section v-if="recentlyViewed.products.length" class="recently-section q-pt-sm q-pb-xs">
       <div class="section-header q-px-md q-mb-xs">
@@ -147,17 +173,10 @@
         </div>
       </div>
 
-      <div v-else class="empty-state column items-center q-py-xl">
-        <q-icon name="search_off" size="56px" color="grey-3" />
-        <div class="empty-title q-mt-md">해당 상품이 없어요</div>
-        <div class="empty-sub q-mt-xs">다른 카테고리를 선택해보세요</div>
-        <q-btn
-          flat
-          label="전체 보기"
-          color="primary"
-          class="q-mt-sm"
-          @click="selectedCategory = 'all'; selectedStore = 'all';"
-        />
+      <div v-else class="q-py-xl">
+        <EmptyState icon="🔍" title="해당 상품이 없어요" subtitle="다른 카테고리를 선택해보세요">
+          <q-btn flat label="전체 보기" color="primary" @click="selectedCategory = 'all'; selectedStore = 'all';" />
+        </EmptyState>
       </div>
     </div>
     </q-pull-to-refresh>
@@ -169,11 +188,22 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import ProductCard from '../components/ProductCard.vue';
 import ProductCardSkeleton from '../components/ProductCardSkeleton.vue';
+import EmptyState from '../components/EmptyState.vue';
 import { mockProducts } from '../data/mockProducts';
 import { useRecentlyViewedStore } from '../stores/recentlyViewed';
 
 const router = useRouter();
 const recentlyViewed = useRecentlyViewedStore();
+
+// 오늘의 베스트: 할인율 상위 5개
+const bestProducts = computed(() =>
+  [...mockProducts].sort((a, b) => b.discountPercent - a.discountPercent).slice(0, 5),
+);
+
+const RANK_LABELS = ['🥇', '🥈', '🥉', '4', '5'];
+function rankLabel(idx: number): string {
+  return RANK_LABELS[idx] ?? String(idx + 1);
+}
 
 const loading = ref(true);
 onMounted(() => { setTimeout(() => { loading.value = false; }, 600); });
@@ -453,6 +483,86 @@ function onRefresh(done: () => void) {
 .chip-emoji {
   font-size: 14px;
   line-height: 1;
+}
+
+// ── Today's Best ───────────────────────────────
+.best-section {
+  background: white;
+}
+
+.best-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 0 16px 8px;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.best-card {
+  flex: 0 0 130px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #f7f8fa;
+  border: 1.5px solid #f0f0f0;
+  cursor: pointer;
+  transition: transform 0.15s;
+  &:active { transform: scale(0.97); }
+}
+
+.best-img-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.rank-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-size: 18px;
+  line-height: 1;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.2));
+}
+
+.best-discount-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: #ff4757;
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+
+.best-info {
+  padding: 8px 10px 10px;
+}
+
+.best-store {
+  font-size: 10px;
+  color: #aaa;
+  margin-bottom: 2px;
+}
+
+.best-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a1a2e;
+  line-height: 1.3;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  margin-bottom: 4px;
+}
+
+.best-price {
+  font-size: 13px;
+  font-weight: 800;
+  color: #ff4757;
+  letter-spacing: -0.3px;
 }
 
 // ── Recently Viewed ────────────────────────────
