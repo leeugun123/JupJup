@@ -5,3 +5,11 @@ declare namespace NodeJS {
     VUE_ROUTER_BASE: string | undefined;
   }
 }
+
+// Vue Router meta 타입 확장
+import 'vue-router';
+declare module 'vue-router' {
+  interface RouteMeta {
+    depth?: number;
+  }
+}

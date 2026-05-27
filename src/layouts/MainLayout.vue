@@ -49,8 +49,12 @@
       </q-tabs>
     </q-footer>
 
-    <q-page-container>
-      <router-view />
+    <q-page-container class="page-container-clip">
+      <router-view v-slot="{ Component, route }">
+        <Transition :name="transitionName" mode="out-in">
+          <component :is="Component" :key="route.path" />
+        </Transition>
+      </router-view>
     </q-page-container>
 
     <!-- Location Dialog -->
@@ -132,6 +136,21 @@ import { useRouter } from 'vue-router';
 import { mockProducts } from '../data/mockProducts';
 
 const router = useRouter();
+
+// ── 페이지 전환 애니메이션 ───────────────────────
+const transitionName = ref('fade');
+
+router.beforeEach((to, from) => {
+  const toDepth = to.meta?.depth ?? 1;
+  const fromDepth = from.meta?.depth ?? 1;
+  if (toDepth === fromDepth) {
+    transitionName.value = 'fade';
+  } else if (toDepth > fromDepth) {
+    transitionName.value = 'slide-left';
+  } else {
+    transitionName.value = 'slide-right';
+  }
+});
 
 const LOCATION_KEY = 'jupjup_location';
 
