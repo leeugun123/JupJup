@@ -1,6 +1,23 @@
 <template>
   <router-view />
 
+  <!-- 스플래시 스크린 -->
+  <Transition name="splash-fade">
+    <div v-if="showSplash" class="splash-screen">
+      <div class="splash-inner">
+        <div class="splash-logo-wrap">
+          <div class="splash-logo">jupjup</div>
+          <div class="splash-tagline">편의점 마감 할인 특가</div>
+        </div>
+        <div class="splash-dots">
+          <span class="splash-dot" />
+          <span class="splash-dot" />
+          <span class="splash-dot" />
+        </div>
+      </div>
+    </div>
+  </Transition>
+
   <!-- 온보딩 오버레이 -->
   <Transition name="fade">
     <div v-if="showOnboarding" class="onboarding-overlay">
@@ -66,14 +83,22 @@
 import { ref, onMounted } from 'vue';
 
 const ONBOARD_KEY = 'jupjup_onboarded';
+const SPLASH_DURATION = 1800; // ms
 
+const showSplash = ref(true);
 const showOnboarding = ref(false);
 const slide = ref(0);
 
 onMounted(() => {
-  if (!localStorage.getItem(ONBOARD_KEY)) {
-    showOnboarding.value = true;
-  }
+  setTimeout(() => {
+    showSplash.value = false;
+    // 스플래시 페이드아웃 완료 후 온보딩 체크 (300ms = transition duration)
+    if (!localStorage.getItem(ONBOARD_KEY)) {
+      setTimeout(() => {
+        showOnboarding.value = true;
+      }, 300);
+    }
+  }, SPLASH_DURATION);
 });
 
 function finishOnboarding() {
@@ -83,6 +108,94 @@ function finishOnboarding() {
 </script>
 
 <style scoped lang="scss">
+// ── Splash Screen ───────────────────────────────
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: linear-gradient(160deg, #ff4757 0%, #ff6b6b 60%, #ff8a65 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.splash-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.splash-logo-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: splash-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.splash-logo {
+  font-size: 52px;
+  font-weight: 900;
+  color: white;
+  letter-spacing: -2.5px;
+  line-height: 1;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+}
+
+.splash-tagline {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.82);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+  animation: splash-fadein 0.5s ease 0.35s both;
+}
+
+.splash-dots {
+  display: flex;
+  gap: 7px;
+  margin-top: 56px;
+  animation: splash-fadein 0.4s ease 0.5s both;
+}
+
+.splash-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  animation: splash-pulse 1.1s ease-in-out infinite;
+
+  &:nth-child(1) { animation-delay: 0s; }
+  &:nth-child(2) { animation-delay: 0.18s; }
+  &:nth-child(3) { animation-delay: 0.36s; }
+}
+
+@keyframes splash-pop {
+  0%   { transform: scale(0.6); opacity: 0; }
+  70%  { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+@keyframes splash-fadein {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes splash-pulse {
+  0%, 100% { transform: scale(1);   opacity: 0.5; }
+  50%       { transform: scale(1.4); opacity: 1; }
+}
+
+// Splash 종료 전환
+.splash-fade-leave-active {
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+.splash-fade-leave-to {
+  opacity: 0;
+  transform: scale(1.04);
+}
+
+// ── Onboarding ──────────────────────────────────
 .onboarding-overlay {
   position: fixed;
   inset: 0;
