@@ -328,6 +328,7 @@ import { useQuasar } from 'quasar';
 import { mockProducts } from '../data/mockProducts';
 import { useFavoritesStore } from '../stores/favorites';
 import { usePurchasesStore } from '../stores/purchases';
+import { useRecentlyViewedStore } from '../stores/recentlyViewed';
 import type { Purchase } from '../stores/purchases';
 import { storeConfig } from '../data/stores';
 import ProductCard from '../components/ProductCard.vue';
@@ -338,6 +339,7 @@ const router = useRouter();
 const $q = useQuasar();
 const favStore = useFavoritesStore();
 const purchasesStore = usePurchasesStore();
+const recentlyViewedStore = useRecentlyViewedStore();
 
 const showConfirm = ref(false);
 const showSuccess = ref(false);
@@ -396,7 +398,10 @@ const alertOn = ref(false);
 watch(
   () => product.value?.id,
   (id) => {
-    if (id) alertOn.value = !!localStorage.getItem(ALERT_KEY(id));
+    if (id) {
+      alertOn.value = !!localStorage.getItem(ALERT_KEY(id));
+      recentlyViewedStore.add(id); // 최근 본 상품 저장
+    }
   },
   { immediate: true },
 );

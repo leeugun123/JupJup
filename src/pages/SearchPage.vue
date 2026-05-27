@@ -12,6 +12,8 @@
         bg-color="white"
         class="search-input"
         @keyup.enter="onEnter"
+        @focus="onInputFocus"
+        @blur="onInputBlur"
       >
         <template #prepend>
           <q-icon name="search" color="grey-5" size="18px" />
@@ -27,6 +29,25 @@
           />
         </template>
       </q-input>
+
+      <!-- 자동완성 드롭다운 -->
+      <Transition name="suggest-drop">
+        <div v-if="showSuggestions" class="suggest-dropdown">
+          <div
+            v-for="item in suggestions"
+            :key="item.id"
+            class="suggest-item"
+            @mousedown.prevent="selectSuggestion(item.name)"
+          >
+            <q-icon name="search" size="14px" color="grey-4" class="suggest-icon" />
+            <div class="suggest-body">
+              <span class="suggest-name" v-html="highlightMatch(item.name)" />
+              <span class="suggest-store">{{ item.storeName }}</span>
+            </div>
+            <q-icon name="north_west" size="13px" color="grey-4" />
+          </div>
+        </div>
+      </Transition>
     </div>
 
     <!-- Default: Recent + Popular + Category -->
@@ -204,12 +225,51 @@ import { useRouter } from 'vue-router';
 import ProductCard from '../components/ProductCard.vue';
 import ProductCardSkeleton from '../components/ProductCardSkeleton.vue';
 import { mockProducts } from '../data/mockProducts';
+import type { Product } from '../types/product';
 
 const router = useRouter();
 const inputRef = ref<{ focus: () => void } | null>(null);
 const query = ref('');
 const selectedCategory = ref('');
 const loading = ref(false);
+
+// ── 자동완성 ─────────────────────────────────────
+const isFocused = ref(false);
+let blurTimer: ReturnType<typeof setTimeout> | null = null;
+
+function onInputFocus() {
+  if (blurTimer) clearTimeout(blurTimer);
+  isFocused.value = true;
+}
+
+function onInputBlur() {
+  blurTimer = setTimeout(() => { isFocused.value = false; }, 200);
+}
+
+const suggestions = computed<Product[]>(() => {
+  const q = query.value.trim().toLowerCase();
+  if (!q) return [];
+  return mockProducts.filter((p) => p.name.toLowerCase().includes(q)).slice(0, 6);
+});
+
+const showSuggestions = computed(() => isFocused.value && suggestions.value.length > 0);
+
+function highlightMatch(name: string): string {
+  const q = query.value.trim();
+  if (!q) return name;
+  const idx = name.toLowerCase().indexOf(q.toLowerCase());
+  if (idx < 0) return name;
+  const before = name.slice(0, idx);
+  const match  = name.slice(idx, idx + q.length);
+  const after  = name.slice(idx + q.length);
+  return `${before}<mark class="hl">${match}</mark>${after}`;
+}
+
+function selectSuggestion(name: string) {
+  query.value = name;
+  isFocused.value = false;
+  addToRecent(name);
+}
 
 onMounted(() => {
   setTimeout(() => inputRef.value?.focus(), 100);
@@ -371,6 +431,77 @@ function goToDetail(id: string) {
 .search-bar-wrap {
   background: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  position: relative;
+}
+
+// ── 자동완성 ───────────────────────────────────
+.suggest-dropdown {
+  position: absolute;
+  top: calc(100% - 8px);
+  left: 16px;
+  right: 16px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.13);
+  overflow: hidden;
+  z-index: 100;
+  border: 1px solid #f0f0f0;
+}
+
+.suggest-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid #f7f7f7;
+  transition: background 0.12s;
+
+  &:last-child { border-bottom: none; }
+  &:active { background: #fafafa; }
+}
+
+.suggest-icon {
+  flex-shrink: 0;
+}
+
+.suggest-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.suggest-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1a1a2e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  :deep(.hl) {
+    background: none;
+    color: #ff4757;
+    font-weight: 700;
+  }
+}
+
+.suggest-store {
+  font-size: 11px;
+  color: #aaa;
+}
+
+// Suggest 드롭다운 전환
+.suggest-drop-enter-active,
+.suggest-drop-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.suggest-drop-enter-from,
+.suggest-drop-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
 }
 
 .search-input {

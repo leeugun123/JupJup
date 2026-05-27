@@ -42,6 +42,24 @@
       </div>
     </div>
 
+    <!-- 최근 본 상품 -->
+    <section v-if="recentlyViewed.products.length" class="recently-section q-pt-sm q-pb-xs">
+      <div class="section-header q-px-md q-mb-xs">
+        <div class="section-title-sm">최근 본 상품</div>
+        <q-space />
+        <span class="recent-clear" @click="recentlyViewed.clear()">지우기</span>
+      </div>
+      <div class="recently-scroll">
+        <div
+          v-for="product in recentlyViewed.products.slice(0, 6)"
+          :key="product.id"
+          class="recently-item"
+        >
+          <ProductCard :product="product" @click="goToDetail(product.id)" />
+        </div>
+      </div>
+    </section>
+
     <!-- Filters -->
     <div class="filter-section q-pt-sm q-pb-xs">
       <div class="filter-row">
@@ -152,8 +170,10 @@ import { useRouter } from 'vue-router';
 import ProductCard from '../components/ProductCard.vue';
 import ProductCardSkeleton from '../components/ProductCardSkeleton.vue';
 import { mockProducts } from '../data/mockProducts';
+import { useRecentlyViewedStore } from '../stores/recentlyViewed';
 
 const router = useRouter();
+const recentlyViewed = useRecentlyViewedStore();
 
 const loading = ref(true);
 onMounted(() => { setTimeout(() => { loading.value = false; }, 600); });
@@ -433,6 +453,40 @@ function onRefresh(done: () => void) {
 .chip-emoji {
   font-size: 14px;
   line-height: 1;
+}
+
+// ── Recently Viewed ────────────────────────────
+.recently-section {
+  background: white;
+  padding-bottom: 12px;
+}
+
+.section-title-sm {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a2e;
+  letter-spacing: -0.3px;
+}
+
+.recent-clear {
+  font-size: 12px;
+  color: #aaaaaa;
+  cursor: pointer;
+}
+
+.recently-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 4px 16px 0;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.recently-item {
+  flex: 0 0 148px;
 }
 
 // ── Urgent Section ─────────────────────────────
