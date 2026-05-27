@@ -64,6 +64,12 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 
 ## Component Notes
 
+**EmptyState.vue**
+
+- props: `icon` (이모지 문자열), `title`, `subtitle?` (optional). 버튼은 `<slot>`으로 주입.
+- 아이콘 float 애니메이션 (`ea-float`, translateY + rotate, 2.4s alternate), 4개 dot pulse 애니메이션 (stagger delay), 텍스트 `ea-fadein`.
+- 사용: HomePage (필터 결과 없음), SearchPage (검색 결과 없음), FavoritesPage (찜 없음 / 필터 결과 없음).
+
 **ProductCardSkeleton.vue**
 
 - ProductCard와 동일한 레이아웃의 shimmer 스켈레톤. `pinia-plugin-persistedstate` 없이 순수 CSS 애니메이션(`@keyframes shimmer`).
@@ -131,6 +137,7 @@ TypeScript type errors surface in the browser overlay during `dev` via `vite-plu
 
 **HomePage.vue**
 
+- 오늘의 베스트: 할인율 상위 5개 상품을 가로 스크롤 랭킹 카드로 표시. 1~3위 메달 이모지(🥇🥈🥉), 4~5위 숫자. 배치: 배너 → 검색바 → **[베스트]** → [최근본] → 필터 → 임박 → 그리드.
 - 상단 배너: `q-carousel` 3장 자동 재생(3.5초), 커스텀 dot indicator (`.banner-dots`)
 - 카테고리 필터: `selectedCategory` ref, `'all'`이면 전체. `p.category`와 `cat.key`(영어)로 매칭
 - 편의점 필터: `selectedStore` ref, `p.storeId`(`'store1'`=CU, `'store2'`=GS25, `'store3'`=세븐일레븐)와 매칭. 활성 시 각 브랜드 고유 색상 inline style로 적용 (CSS class 아님)
