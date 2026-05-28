@@ -146,13 +146,13 @@
             </div>
           </div>
           <q-separator inset />
-          <div class="menu-item">
+          <div class="menu-item" @click="showLocationSheet = true">
             <div class="menu-icon-wrap" style="background: #fff0f8">
               <q-icon name="location_on" color="pink" size="18px" />
             </div>
             <span class="menu-label">내 위치 설정</span>
             <div class="menu-right">
-              <span class="menu-value">서울 강남구</span>
+              <span class="menu-value">{{ currentLocation }}</span>
               <q-icon name="chevron_right" color="grey-4" size="18px" />
             </div>
           </div>
@@ -222,6 +222,40 @@
         <q-btn label="로그인" color="primary" unelevated class="login-btn" />
       </div>
     </div>
+
+    <!-- 내 위치 설정 Dialog -->
+    <q-dialog v-model="showLocationSheet" position="bottom">
+      <q-card class="location-settings-sheet">
+        <div class="dialog-handle" />
+        <div class="location-settings-header">
+          <div class="location-settings-title">내 위치 설정</div>
+          <div class="location-settings-sub">특가 상품을 찾을 지역을 선택하세요</div>
+        </div>
+        <q-list class="location-list">
+          <q-item
+            v-for="district in districts"
+            :key="district"
+            clickable
+            v-ripple
+            class="location-item"
+            :class="{ 'location-item--active': currentLocation === district }"
+            @click="selectLocation(district)"
+          >
+            <q-item-section avatar>
+              <q-icon
+                name="location_on"
+                :color="currentLocation === district ? 'pink' : 'grey-4'"
+                size="18px"
+              />
+            </q-item-section>
+            <q-item-section class="location-item-label">{{ district }}</q-item-section>
+            <q-item-section side>
+              <q-icon v-if="currentLocation === district" name="check" color="pink" size="16px" />
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-card>
+    </q-dialog>
 
     <!-- 알림 설정 Dialog -->
     <q-dialog v-model="showNotifSheet" position="bottom">
@@ -439,6 +473,23 @@ const showLoginDialog = ref(false);
 const showLogoutDialog = ref(false);
 const showCouponWallet = ref(false);
 const showFavStores = ref(false);
+const showLocationSheet = ref(false);
+
+const LOCATION_KEY = 'jupjup_location';
+const currentLocation = ref('강남구');
+
+const districts = [
+  '강남구', '강북구', '강서구', '관악구', '광진구',
+  '구로구', '노원구', '동작구', '마포구', '서초구',
+  '송파구', '영등포구', '용산구', '은평구', '종로구', '중구',
+];
+
+function selectLocation(district: string) {
+  currentLocation.value = district;
+  localStorage.setItem(LOCATION_KEY, district);
+  showLocationSheet.value = false;
+  $q.notify({ message: `📍 ${district}으로 변경됐어요`, color: 'dark', timeout: 1600 });
+}
 const showNotifSheet = ref(false);
 
 // 알림 설정된 상품 목록 (localStorage 스캔)
@@ -501,6 +552,8 @@ onMounted(() => {
     const saved = localStorage.getItem(FAV_STORES_KEY);
     if (saved) favoriteStores.value = JSON.parse(saved) as string[];
   } catch { /* ignore */ }
+  const savedLocation = localStorage.getItem(LOCATION_KEY);
+  if (savedLocation) currentLocation.value = savedLocation;
 });
 
 function doLogin(provider: 'kakao' | 'naver') {
@@ -744,6 +797,57 @@ function doLogout() {
   font-weight: 700;
   min-width: 68px;
   font-size: 13px;
+}
+
+// ── 내 위치 설정 ───────────────────────────────
+.location-settings-sheet {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 24px 24px 0 0 !important;
+  padding-bottom: 32px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.location-settings-header {
+  padding: 16px 20px 12px;
+  flex-shrink: 0;
+}
+
+.location-settings-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1a1a2e;
+  letter-spacing: -0.5px;
+}
+
+.location-settings-sub {
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 4px;
+}
+
+.location-list {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.location-item {
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #444;
+
+  &--active {
+    color: #e91e8c;
+    font-weight: 700;
+    background: #fff5fb;
+  }
+}
+
+.location-item-label {
+  font-size: 14px;
 }
 
 // ── 알림 설정 ──────────────────────────────────
