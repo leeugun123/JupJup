@@ -130,13 +130,18 @@
             </div>
           </div>
           <q-separator inset />
-          <div class="menu-item">
+          <div class="menu-item" @click="openNotifSheet">
             <div class="menu-icon-wrap" style="background: #f3f0ff">
               <q-icon name="notifications" color="accent" size="18px" />
             </div>
             <span class="menu-label">알림 설정</span>
             <div class="menu-right">
-              <q-toggle v-model="notifOn" color="primary" dense size="sm" />
+              <q-badge
+                v-if="alertProducts.length"
+                color="accent"
+                :label="alertProducts.length"
+                rounded
+              />
               <q-icon name="chevron_right" color="grey-4" size="18px" />
             </div>
           </div>
@@ -217,6 +222,76 @@
         <q-btn label="로그인" color="primary" unelevated class="login-btn" />
       </div>
     </div>
+
+    <!-- 알림 설정 Dialog -->
+    <q-dialog v-model="showNotifSheet" position="bottom">
+      <q-card class="notif-settings-sheet">
+        <div class="dialog-handle" />
+        <div class="notif-settings-header">
+          <div class="notif-settings-title">알림 설정</div>
+        </div>
+
+        <!-- 전체 알림 토글 -->
+        <div class="notif-global-row">
+          <div class="notif-global-left">
+            <q-icon name="notifications_active" color="accent" size="20px" />
+            <div>
+              <div class="notif-global-label">전체 알림</div>
+              <div class="notif-global-sub">마감 임박 알림을 받아요</div>
+            </div>
+          </div>
+          <q-toggle v-model="notifOn" color="accent" />
+        </div>
+
+        <q-separator class="q-mx-md" />
+
+        <!-- 알림 설정된 상품 목록 -->
+        <div class="notif-product-header">
+          <span class="notif-product-title">개별 상품 알림</span>
+          <span class="notif-product-count text-grey-5">{{ alertProducts.length }}개</span>
+        </div>
+
+        <div v-if="alertProducts.length" class="notif-product-list">
+          <div
+            v-for="product in alertProducts"
+            :key="product.id"
+            class="notif-product-item"
+          >
+            <div class="notif-product-info">
+              <div class="notif-product-name">{{ product.name }}</div>
+              <div class="notif-product-meta">
+                <span
+                  class="notif-store-badge"
+                  :style="{ background: storeConfig[product.storeId]?.bgColor, color: storeConfig[product.storeId]?.color }"
+                >
+                  {{ storeConfig[product.storeId]?.label }}
+                </span>
+                <span class="notif-expiry">D-{{ daysLeft(product.expiryDate) }}</span>
+              </div>
+            </div>
+            <q-btn
+              flat
+              round
+              dense
+              icon="notifications_off"
+              color="grey-4"
+              size="sm"
+              @click="removeAlert(product.id)"
+            />
+          </div>
+        </div>
+
+        <div v-else class="notif-empty">
+          <q-icon name="notifications_none" size="40px" color="grey-3" />
+          <div class="q-mt-sm text-grey-5" style="font-size: 13px">
+            알림 설정된 상품이 없어요
+          </div>
+          <div class="text-grey-4 q-mt-xs" style="font-size: 12px">
+            상품 상세에서 벨 아이콘을 눌러 설정하세요
+          </div>
+        </div>
+      </q-card>
+    </q-dialog>
 
     <!-- 관심 편의점 Dialog -->
     <q-dialog v-model="showFavStores" position="bottom">
@@ -352,6 +427,7 @@ import { useFavoritesStore } from '../stores/favorites';
 import { usePurchasesStore } from '../stores/purchases';
 import { useAuthStore } from '../stores/auth';
 import { storeConfig } from '../data/stores';
+import { mockProducts } from '../data/mockProducts';
 
 const $q = useQuasar();
 const favStore = useFavoritesStore();
@@ -363,6 +439,35 @@ const showLoginDialog = ref(false);
 const showLogoutDialog = ref(false);
 const showCouponWallet = ref(false);
 const showFavStores = ref(false);
+const showNotifSheet = ref(false);
+
+// 알림 설정된 상품 목록 (localStorage 스캔)
+const alertProducts = ref<typeof mockProducts>([]);
+
+function loadAlertProducts() {
+  alertProducts.value = mockProducts.filter((p) =>
+    !!localStorage.getItem(`jupjup_alert_${p.id}`),
+  );
+}
+
+function openNotifSheet() {
+  loadAlertProducts();
+  showNotifSheet.value = true;
+}
+
+function removeAlert(id: string) {
+  localStorage.removeItem(`jupjup_alert_${id}`);
+  loadAlertProducts();
+  $q.notify({ message: '알림이 해제됐어요', color: 'grey-7', timeout: 1400 });
+}
+
+function daysLeft(expiryDate: string): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const expiry = new Date(expiryDate);
+  expiry.setHours(0, 0, 0, 0);
+  return Math.max(0, Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
+}
 
 const FAV_STORES_KEY = 'jupjup_fav_stores';
 const favoriteStores = ref<string[]>([]);
@@ -639,6 +744,126 @@ function doLogout() {
   font-weight: 700;
   min-width: 68px;
   font-size: 13px;
+}
+
+// ── 알림 설정 ──────────────────────────────────
+.notif-settings-sheet {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 24px 24px 0 0 !important;
+  padding-bottom: 32px;
+}
+
+.notif-settings-header {
+  padding: 16px 20px 12px;
+}
+
+.notif-settings-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1a1a2e;
+  letter-spacing: -0.5px;
+}
+
+.notif-global-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: #f8f0ff;
+  margin: 0 16px 16px;
+  border-radius: 14px;
+}
+
+.notif-global-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.notif-global-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.notif-global-sub {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 2px;
+}
+
+.notif-product-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 20px 8px;
+}
+
+.notif-product-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.notif-product-count {
+  font-size: 12px;
+}
+
+.notif-product-list {
+  max-height: 45vh;
+  overflow-y: auto;
+}
+
+.notif-product-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid #f5f5f5;
+  transition: background 0.1s;
+
+  &:last-child { border-bottom: none; }
+  &:active { background: #fafafa; }
+}
+
+.notif-product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.notif-product-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.notif-product-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.notif-store-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 8px;
+}
+
+.notif-expiry {
+  font-size: 11px;
+  color: #ff4757;
+  font-weight: 600;
+}
+
+.notif-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 0 16px;
+  text-align: center;
 }
 
 // ── 관심 편의점 ────────────────────────────────
