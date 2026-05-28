@@ -117,12 +117,17 @@
       <div class="menu-section">
         <div class="menu-section-title">편의점</div>
         <div class="menu-card">
-          <div class="menu-item">
+          <div class="menu-item" @click="showFavStores = true">
             <div class="menu-icon-wrap" style="background: #f0fff4">
               <q-icon name="store" color="positive" size="18px" />
             </div>
             <span class="menu-label">관심 편의점</span>
-            <q-icon name="chevron_right" color="grey-4" size="18px" />
+            <div class="menu-right">
+              <span v-if="favoriteStores.length" class="menu-value">
+                {{ favoriteStores.map(id => storeConfig[id]?.label).join(', ') }}
+              </span>
+              <q-icon name="chevron_right" color="grey-4" size="18px" />
+            </div>
           </div>
           <q-separator inset />
           <div class="menu-item">
@@ -213,6 +218,60 @@
       </div>
     </div>
 
+    <!-- 관심 편의점 Dialog -->
+    <q-dialog v-model="showFavStores" position="bottom">
+      <q-card class="fav-stores-sheet">
+        <div class="dialog-handle" />
+        <div class="fav-stores-header">
+          <div class="fav-stores-title">관심 편의점</div>
+          <div class="fav-stores-sub">특가 알림을 받을 편의점을 선택하세요</div>
+        </div>
+        <div class="fav-stores-grid">
+          <div
+            v-for="(info, id) in storeConfig"
+            :key="id"
+            class="store-card"
+            :class="{ 'store-card--active': favoriteStores.includes(id) }"
+            :style="favoriteStores.includes(id)
+              ? { borderColor: info.color, background: info.bgColor }
+              : {}"
+            @click="toggleFavStore(id)"
+          >
+            <div class="store-card-check">
+              <q-icon
+                :name="favoriteStores.includes(id) ? 'check_circle' : 'radio_button_unchecked'"
+                :color="favoriteStores.includes(id) ? 'white' : 'grey-3'"
+                size="18px"
+              />
+            </div>
+            <div
+              class="store-emblem"
+              :style="{ background: info.color }"
+            >
+              <q-icon name="store" color="white" size="22px" />
+            </div>
+            <div
+              class="store-card-label"
+              :style="favoriteStores.includes(id) ? { color: info.color } : {}"
+            >
+              {{ info.label }}
+            </div>
+          </div>
+        </div>
+        <div class="fav-stores-footer">
+          <q-btn
+            unelevated
+            color="primary"
+            rounded
+            label="완료"
+            class="full-width"
+            style="height: 48px; font-weight: 700;"
+            @click="showFavStores = false"
+          />
+        </div>
+      </q-card>
+    </q-dialog>
+
     <!-- Coupon Wallet Dialog -->
     <q-dialog v-model="showCouponWallet" position="bottom">
       <q-card class="coupon-sheet">
@@ -292,6 +351,7 @@ import { useQuasar } from 'quasar';
 import { useFavoritesStore } from '../stores/favorites';
 import { usePurchasesStore } from '../stores/purchases';
 import { useAuthStore } from '../stores/auth';
+import { storeConfig } from '../data/stores';
 
 const $q = useQuasar();
 const favStore = useFavoritesStore();
@@ -302,6 +362,20 @@ const notifOn = ref(true);
 const showLoginDialog = ref(false);
 const showLogoutDialog = ref(false);
 const showCouponWallet = ref(false);
+const showFavStores = ref(false);
+
+const FAV_STORES_KEY = 'jupjup_fav_stores';
+const favoriteStores = ref<string[]>([]);
+
+function toggleFavStore(id: string) {
+  const idx = favoriteStores.value.indexOf(id);
+  if (idx >= 0) {
+    favoriteStores.value.splice(idx, 1);
+  } else {
+    favoriteStores.value.push(id);
+  }
+  localStorage.setItem(FAV_STORES_KEY, JSON.stringify(favoriteStores.value));
+}
 
 const DARK_KEY = 'jupjup_dark';
 const isDark = ref($q.dark.isActive);
@@ -318,6 +392,10 @@ onMounted(() => {
     $q.dark.set(true);
     isDark.value = true;
   }
+  try {
+    const saved = localStorage.getItem(FAV_STORES_KEY);
+    if (saved) favoriteStores.value = JSON.parse(saved) as string[];
+  } catch { /* ignore */ }
 });
 
 function doLogin(provider: 'kakao' | 'naver') {
@@ -561,6 +639,81 @@ function doLogout() {
   font-weight: 700;
   min-width: 68px;
   font-size: 13px;
+}
+
+// ── 관심 편의점 ────────────────────────────────
+.fav-stores-sheet {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 24px 24px 0 0 !important;
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+
+.fav-stores-header {
+  padding: 16px 20px 20px;
+}
+
+.fav-stores-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1a1a2e;
+  letter-spacing: -0.5px;
+}
+
+.fav-stores-sub {
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 4px;
+}
+
+.fav-stores-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 0 20px 20px;
+}
+
+.store-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 8px 14px;
+  border-radius: 16px;
+  border: 2px solid #eeeeee;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all 0.18s;
+
+  &:active { transform: scale(0.97); }
+  &--active { box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
+}
+
+.store-card-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.store-emblem {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.store-card-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #444;
+  letter-spacing: -0.3px;
+}
+
+.fav-stores-footer {
+  padding: 0 20px 24px;
 }
 
 // ── Coupon Wallet ─────────────────────────────
