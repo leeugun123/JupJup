@@ -184,7 +184,7 @@
             </div>
           </div>
           <q-separator inset />
-          <div class="menu-item">
+          <div class="menu-item" @click="showCsSheet = true">
             <div class="menu-icon-wrap" style="background: #f0faff">
               <q-icon name="headset_mic" color="info" size="18px" />
             </div>
@@ -225,6 +225,59 @@
         <q-btn label="로그인" color="primary" unelevated class="login-btn" />
       </div>
     </div>
+
+    <!-- 고객센터 Dialog -->
+    <q-dialog v-model="showCsSheet" position="bottom">
+      <q-card class="cs-sheet">
+        <div class="dialog-handle" />
+        <div class="cs-header">
+          <div class="cs-title">고객센터</div>
+          <div class="cs-sub">무엇이든 도와드릴게요 😊</div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="cs-section-label">자주 묻는 질문</div>
+        <q-list class="faq-list">
+          <q-expansion-item
+            v-for="faq in faqs"
+            :key="faq.q"
+            :label="faq.q"
+            header-class="faq-header"
+            expand-icon-class="text-grey-5"
+            dense
+          >
+            <div class="faq-answer">{{ faq.a }}</div>
+          </q-expansion-item>
+        </q-list>
+
+        <!-- 문의하기 -->
+        <div class="cs-section-label q-mt-sm">문의하기</div>
+        <div class="cs-contact-wrap q-px-md q-pb-md">
+          <div class="cs-contact-card" @click="onKakaoCs">
+            <div class="cs-contact-icon" style="background: #fee500">
+              <q-icon name="chat_bubble" color="brown-8" size="20px" />
+            </div>
+            <div class="cs-contact-info">
+              <div class="cs-contact-label">카카오 채널 문의</div>
+              <div class="cs-contact-desc">평일 09:00 ~ 18:00</div>
+            </div>
+            <q-icon name="chevron_right" color="grey-4" size="16px" />
+          </div>
+          <div class="cs-contact-card" @click="onEmailCs">
+            <div class="cs-contact-icon" style="background: #e8f4fd">
+              <q-icon name="email" color="info" size="20px" />
+            </div>
+            <div class="cs-contact-info">
+              <div class="cs-contact-label">이메일 문의</div>
+              <div class="cs-contact-desc">support@jupjup.kr</div>
+            </div>
+            <q-icon name="chevron_right" color="grey-4" size="16px" />
+          </div>
+        </div>
+
+        <div class="cs-version">앱 버전 v1.0.0</div>
+      </q-card>
+    </q-dialog>
 
     <!-- 공지사항 목록 Dialog -->
     <q-dialog v-model="showNoticeSheet" position="bottom">
@@ -540,6 +593,38 @@ const showCouponWallet = ref(false);
 const showFavStores = ref(false);
 const showLocationSheet = ref(false);
 const showNoticeSheet = ref(false);
+const showCsSheet = ref(false);
+
+const faqs = [
+  {
+    q: '어떤 편의점 상품을 다루나요?',
+    a: 'CU, GS25, 세븐일레븐의 유통기한 임박 상품을 다룹니다. 음료, 간식, 식품, 유제품, 냉동식품, 즉석식품 등 다양한 카테고리의 상품을 할인된 가격으로 만나보실 수 있어요.',
+  },
+  {
+    q: '할인 코드는 어디서 사용하나요?',
+    a: '구매 완료 후 발급된 코드를 해당 편의점 계산대 직원에게 보여주시면 됩니다. 바코드도 함께 표시되니 스캔 방식으로도 사용 가능해요.',
+  },
+  {
+    q: '마감 임박 상품이란 무엇인가요?',
+    a: '유통기한이 2일 이내로 남은 상품을 뜻합니다. 안전하게 섭취 가능한 상품이지만 빠른 소비가 필요하기 때문에 특가로 제공돼요.',
+  },
+  {
+    q: '구매 후 환불은 어떻게 하나요?',
+    a: '마감 임박 상품 특성상 일반적인 반품·환불은 어렵습니다. 상품 불량이나 이물질이 발견된 경우 고객센터로 문의해주세요.',
+  },
+  {
+    q: '알림은 어떻게 설정하나요?',
+    a: '상품 상세 페이지에서 벨 아이콘을 탭하면 해당 상품의 마감 알림을 설정할 수 있어요. 마이 > 알림 설정에서 설정된 알림을 한눈에 관리할 수 있습니다.',
+  },
+];
+
+function onKakaoCs() {
+  $q.notify({ message: '카카오 채널로 연결합니다 💬', color: 'brown-8', timeout: 1600 });
+}
+
+function onEmailCs() {
+  $q.notify({ message: 'support@jupjup.kr 로 문의해주세요 ✉️', color: 'info', timeout: 2000 });
+}
 const showNoticeDetail = ref(false);
 
 interface Notice {
@@ -919,6 +1004,119 @@ function doLogout() {
   font-weight: 700;
   min-width: 68px;
   font-size: 13px;
+}
+
+// ── 고객센터 ───────────────────────────────────
+.cs-sheet {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 24px 24px 0 0 !important;
+  padding-bottom: 32px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.cs-header {
+  padding: 16px 20px 12px;
+}
+
+.cs-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1a1a2e;
+  letter-spacing: -0.5px;
+}
+
+.cs-sub {
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 4px;
+}
+
+.cs-section-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #aaa;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 8px 20px 4px;
+}
+
+.faq-list {
+  margin: 0 16px;
+  background: #f7f8fa;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+:deep(.faq-header) {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a2e;
+  min-height: 48px;
+  padding: 0 16px;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.faq-answer {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.7;
+  padding: 12px 16px 14px;
+  background: white;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.cs-contact-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cs-contact-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #f7f8fa;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:active { background: #ecedf0; }
+}
+
+.cs-contact-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cs-contact-info {
+  flex: 1;
+}
+
+.cs-contact-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.cs-contact-desc {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 2px;
+}
+
+.cs-version {
+  text-align: center;
+  font-size: 12px;
+  color: #ccc;
+  padding: 16px 0 4px;
 }
 
 // ── 공지사항 ───────────────────────────────────
