@@ -173,12 +173,15 @@
             </div>
           </div>
           <q-separator inset />
-          <div class="menu-item">
+          <div class="menu-item" @click="showNoticeSheet = true">
             <div class="menu-icon-wrap" style="background: #fff8f0">
               <q-icon name="campaign" color="secondary" size="18px" />
             </div>
             <span class="menu-label">공지사항</span>
-            <q-icon name="chevron_right" color="grey-4" size="18px" />
+            <div class="menu-right">
+              <q-badge color="secondary" label="NEW" rounded style="font-size:9px" />
+              <q-icon name="chevron_right" color="grey-4" size="18px" />
+            </div>
           </div>
           <q-separator inset />
           <div class="menu-item">
@@ -222,6 +225,68 @@
         <q-btn label="로그인" color="primary" unelevated class="login-btn" />
       </div>
     </div>
+
+    <!-- 공지사항 목록 Dialog -->
+    <q-dialog v-model="showNoticeSheet" position="bottom">
+      <q-card class="notice-sheet">
+        <div class="dialog-handle" />
+        <div class="notice-header">
+          <div class="notice-title">공지사항</div>
+        </div>
+        <q-list class="notice-list">
+          <q-item
+            v-for="notice in notices"
+            :key="notice.id"
+            clickable
+            v-ripple
+            class="notice-item"
+            @click="openNotice(notice)"
+          >
+            <q-item-section>
+              <div class="notice-item-top">
+                <span class="notice-badge" :class="`notice-badge--${notice.type}`">
+                  {{ noticeTypeLabel(notice.type) }}
+                </span>
+                <span v-if="notice.isNew" class="notice-new-dot" />
+              </div>
+              <div class="notice-item-title">{{ notice.title }}</div>
+              <div class="notice-item-date">{{ notice.date }}</div>
+            </q-item-section>
+            <q-item-section side>
+              <q-icon name="chevron_right" color="grey-4" size="16px" />
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-card>
+    </q-dialog>
+
+    <!-- 공지사항 상세 Dialog -->
+    <q-dialog v-model="showNoticeDetail">
+      <q-card class="notice-detail-card" v-if="selectedNotice">
+        <q-card-section class="notice-detail-top">
+          <span class="notice-badge" :class="`notice-badge--${selectedNotice.type}`">
+            {{ noticeTypeLabel(selectedNotice.type) }}
+          </span>
+          <div class="notice-detail-title q-mt-sm">{{ selectedNotice.title }}</div>
+          <div class="notice-detail-date">{{ selectedNotice.date }}</div>
+        </q-card-section>
+        <q-separator />
+        <q-card-section class="notice-detail-body">
+          {{ selectedNotice.content }}
+        </q-card-section>
+        <q-card-section class="q-pt-none q-pb-md q-px-md">
+          <q-btn
+            unelevated
+            color="primary"
+            rounded
+            label="확인"
+            class="full-width"
+            style="height: 44px; font-weight: 700;"
+            @click="showNoticeDetail = false"
+          />
+        </q-card-section>
+      </q-card>
+    </q-dialog>
 
     <!-- 내 위치 설정 Dialog -->
     <q-dialog v-model="showLocationSheet" position="bottom">
@@ -474,6 +539,63 @@ const showLogoutDialog = ref(false);
 const showCouponWallet = ref(false);
 const showFavStores = ref(false);
 const showLocationSheet = ref(false);
+const showNoticeSheet = ref(false);
+const showNoticeDetail = ref(false);
+
+interface Notice {
+  id: number;
+  type: 'notice' | 'event' | 'update';
+  title: string;
+  date: string;
+  content: string;
+  isNew: boolean;
+}
+
+const selectedNotice = ref<Notice | null>(null);
+
+const notices: Notice[] = [
+  {
+    id: 1,
+    type: 'update',
+    title: 'v1.1.0 업데이트 안내 — 베스트 랭킹·자동완성 추가',
+    date: '2026.05.28',
+    content: '안녕하세요, jupjup 팀입니다.\n\n이번 업데이트에서 다음 기능이 추가됐습니다.\n\n• 오늘의 베스트 🏆 — 할인율 TOP 5 랭킹 카드\n• 검색 자동완성 — 입력 시 상품명 드롭다운\n• 최근 본 상품 — 방문 이력 홈 화면 표시\n• 페이지 전환 애니메이션 개선\n\n더 나은 서비스로 찾아뵙겠습니다. 감사합니다.',
+    isNew: true,
+  },
+  {
+    id: 2,
+    type: 'event',
+    title: '🎁 첫 구매 할인 이벤트 — 최대 1,000원 추가 절약',
+    date: '2026.05.20',
+    content: '안녕하세요, jupjup 팀입니다.\n\njupjup을 처음 이용하시는 분들을 위해 특별 이벤트를 준비했습니다.\n\n✅ 대상: 첫 구매 고객 전원\n✅ 혜택: 추가 1,000원 할인\n✅ 기간: 2026.05.20 ~ 2026.06.20\n\n이 기회를 놓치지 마세요!',
+    isNew: true,
+  },
+  {
+    id: 3,
+    type: 'notice',
+    title: '서비스 이용약관 변경 안내',
+    date: '2026.05.10',
+    content: '안녕하세요, jupjup 팀입니다.\n\n서비스 이용약관이 일부 변경됩니다.\n\n주요 변경 사항:\n• 개인정보 수집 항목 최소화\n• 위치 정보 이용 동의 방식 변경\n\n변경된 약관은 2026년 6월 1일부터 적용됩니다.\n\n문의사항은 고객센터를 이용해주세요.',
+    isNew: false,
+  },
+  {
+    id: 4,
+    type: 'notice',
+    title: 'jupjup 앱 정식 출시 안내',
+    date: '2026.05.01',
+    content: '안녕하세요!\n\n편의점 마감 임박 특가 중개 플랫폼 jupjup이 정식 출시됐습니다.\n\njupjup은 유통기한 임박 상품을 최대 50% 할인된 가격으로 만나볼 수 있는 서비스입니다.\n\nCU, GS25, 세븐일레븐의 마감 특가 상품을 한 곳에서 확인하세요.\n\n앞으로도 더 좋은 서비스로 보답하겠습니다. 감사합니다.',
+    isNew: false,
+  },
+];
+
+function noticeTypeLabel(type: Notice['type']): string {
+  return { notice: '공지', event: '이벤트', update: '업데이트' }[type];
+}
+
+function openNotice(notice: Notice) {
+  selectedNotice.value = notice;
+  showNoticeDetail.value = true;
+}
 
 const LOCATION_KEY = 'jupjup_location';
 const currentLocation = ref('강남구');
@@ -797,6 +919,112 @@ function doLogout() {
   font-weight: 700;
   min-width: 68px;
   font-size: 13px;
+}
+
+// ── 공지사항 ───────────────────────────────────
+.notice-sheet {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 24px 24px 0 0 !important;
+  padding-bottom: 32px;
+  max-height: 75vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.notice-header {
+  padding: 16px 20px 8px;
+  flex-shrink: 0;
+}
+
+.notice-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1a1a2e;
+  letter-spacing: -0.5px;
+}
+
+.notice-list {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.notice-item {
+  padding: 14px 20px;
+  border-bottom: 1px solid #f5f5f5;
+  &:last-child { border-bottom: none; }
+}
+
+.notice-item-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.notice-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+
+  &--notice  { background: #f0f4ff; color: #5352ed; }
+  &--event   { background: #fff8e1; color: #f57f17; }
+  &--update  { background: #f0fff4; color: #2e7d32; }
+}
+
+.notice-new-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ff4757;
+}
+
+.notice-item-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a2e;
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+
+.notice-item-date {
+  font-size: 11px;
+  color: #aaa;
+}
+
+.notice-detail-card {
+  width: 320px;
+  border-radius: 20px !important;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.notice-detail-top {
+  padding: 24px 20px 16px;
+}
+
+.notice-detail-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1a1a2e;
+  line-height: 1.4;
+  letter-spacing: -0.3px;
+}
+
+.notice-detail-date {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 6px;
+}
+
+.notice-detail-body {
+  font-size: 14px;
+  color: #444;
+  line-height: 1.8;
+  white-space: pre-line;
+  padding: 16px 20px;
 }
 
 // ── 내 위치 설정 ───────────────────────────────
