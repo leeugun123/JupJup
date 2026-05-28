@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "agent",
+            "if": "Bash(git *)",
+            "prompt": "훅 입력 JSON:\n$ARGUMENTS\n\n아래 단계를 순서대로 실행하세요.\n\n## 1단계: commit 여부 확인\ntool_input.command에 'commit'이 포함되지 않았거나, tool_response의 exit_code(또는 returnCode)가 0이 아니면 즉시 종료 (아무것도 하지 않음).\n\n## 2단계: 무한 루프 방지\n다음 명령 실행:\n  git -C \"C:\\Users\\leeug\\AndroidStudioProjects\\JupJup\" log -1 --format=\"%s\"\n\n출력된 커밋 메시지가 '문서:'로 시작하면 즉시 종료.\n\n## 3단계: 변경 파일 확인\n다음 명령 실행:\n  git -C \"C:\\Users\\leeug\\AndroidStudioProjects\\JupJup\" diff HEAD~1 HEAD --name-only\n\n변경된 파일 중 .vue, .ts, .scss 파일이 없으면 종료.\n\n## 4단계: 변경 내용 파악\n변경된 src/ 파일들을 읽어 어떤 기능/컴포넌트/스토어가 추가 또는 수정됐는지 파악.\n\n## 5단계: README.md 업데이트\n파일: C:\\Users\\leeug\\AndroidStudioProjects\\JupJup\\README.md\n- 새로운 기능이 추가됐으면 '주요 기능' 섹션의 해당 카테고리에 한 줄 추가\n- 새 컴포넌트/파일이 생겼으면 '프로젝트 구조' 섹션 업데이트\n- 기존 내용과 중복되면 추가하지 않음\n\n## 6단계: CLAUDE.md 업데이트\n파일: C:\\Users\\leeug\\AndroidStudioProjects\\JupJup\\CLAUDE.md\n- 새 컴포넌트: Component Notes 섹션에 기술 노트 추가\n- 새 스토어: Stores 항목 추가\n- 새 페이지: Pages and routes 테이블 업데이트\n- 주요 구현 패턴이나 주의사항이 있으면 관련 섹션에 추가\n\n## 7단계: 커밋\n변경사항이 있을 때만:\n  git -C \"C:\\Users\\leeug\\AndroidStudioProjects\\JupJup\" add README.md CLAUDE.md\n  git -C \"C:\\Users\\leeug\\AndroidStudioProjects\\JupJup\" commit -m \"문서: README.md + CLAUDE.md 자동 업데이트\"\n\n변경사항이 없으면 커밋하지 않음.",
+            "timeout": 180,
+            "statusMessage": "README.md + CLAUDE.md 자동 업데이트 중..."
+          }
+        ]
+      }
+    ]
+  }
+}
